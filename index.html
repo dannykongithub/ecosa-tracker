@@ -844,6 +844,47 @@
         // Initialize
         loadState();
 
+        // Data export function
+function exportData() {
+    const allData = localStorage.getItem('ecoSaTrackerState');
+    if (!allData) {
+        showNotification('No data to export!', 'warning');
+        return;
+    }
+    
+    const data = JSON.parse(allData);
+    const exportData = {
+        exportDate: new Date().toISOString(),
+        userData: data
+    };
+    
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ecosa-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showNotification('📊 Data exported!');
+}
+
+// Add export button
+setTimeout(() => {
+    const shareSection = document.querySelector('.share-section');
+    if (shareSection) {
+        const exportBtn = document.createElement('button');
+        exportBtn.className = 'share-button';
+        exportBtn.style.background = '#004d40';
+        exportBtn.style.marginTop = '10px';
+        exportBtn.innerHTML = '<span>📊</span> Export Data';
+        exportBtn.onclick = exportData;
+        shareSection.appendChild(exportBtn);
+    }
+}, 500);
+
         // Add touch feedback
         document.querySelectorAll('button').forEach(button => {
             button.addEventListener('touchstart', function() {
