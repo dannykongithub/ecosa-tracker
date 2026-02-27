@@ -1,904 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>EcoSA - Sustainable Habits Challenge South Africa</title>
-    <style>
-        * {
-            margin: 0; 
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>EcoSA Study Tracker</title>
 
-        body {
-            background: linear-gradient(135deg, #1a5f4b 0%, #2e8b57 100%);
-            min-height: 100vh;
-            padding: 15px;
-        }
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+    body { background: linear-gradient(135deg, #1a5f4b 0%, #2e8b57 100%); min-height: 100vh; padding: 15px; }
+    .container { max-width: 520px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #004d40, #1e4d3b); color: white; padding: 22px 18px 18px; text-align: center; position: relative; }
+    .flag-badge { position: absolute; top: 14px; right: 14px; background: #ffb300; color: #004d40; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .header h1 { font-size: 26px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .header p { opacity: 0.92; font-size: 14px; }
+    .subline { margin-top: 8px; font-size: 12px; opacity: 0.9; }
 
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+    .progress-section { background: #f5f9f7; padding: 18px; border-bottom: 1px solid #d4e8dd; }
+    .week-indicator { text-align: center; margin-bottom: 12px; }
+    .week-badge { background: #004d40; color: white; padding: 8px 18px; border-radius: 30px; font-weight: 700; display: inline-block; font-size: 13px; }
+    .progress-bar { height: 10px; background: #d4e8dd; border-radius: 10px; overflow: hidden; margin: 12px 0 14px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #004d40, #2e8b57); width: 0%; transition: width 0.3s ease; }
+    .stats { display: flex; justify-content: space-around; text-align: center; background: white; padding: 14px 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,77,64,0.1); }
+    .stat-item { flex: 1; }
+    .stat-number { font-size: 24px; font-weight: 800; color: #004d40; }
+    .stat-label { font-size: 10px; color: #5e7a6b; text-transform: uppercase; letter-spacing: 0.6px; }
 
-        .header {
-            background: linear-gradient(135deg, #004d40, #1e4d3b);
-            color: white;
-            padding: 25px 20px;
-            text-align: center;
-            position: relative;
-        }
+    .actions-section { padding: 18px; }
+    .section-title { color: #004d40; font-size: 17px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .habit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
+    .habit-card { background: #f5f9f7; border-radius: 16px; padding: 14px 10px 12px; text-align: center; cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,77,64,0.1); }
+    .habit-card.selected { background: #e0f2e9; border-color: #004d40; transform: scale(0.99); box-shadow: 0 4px 12px rgba(0,77,64,0.2); }
+    .habit-emoji { font-size: 26px; margin-bottom: 8px; }
+    .habit-name { font-size: 12px; font-weight: 700; color: #004d40; line-height: 1.25; min-height: 36px; }
+    .habit-category { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; margin-top: 7px; opacity: 0.65; color: #004d40; }
 
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+    .tips-card { background: #e8f4f0; padding: 14px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid #004d40; }
+    .tips-card p { color: #004d40; font-size: 13px; }
+    .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 15px;
-        }
+    .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 800; font-size: 12px; margin-bottom: 10px; }
+    .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
+    .context-duty { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
 
-        .flag-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ffb300;
-            color: #004d40;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
+    .log-button { background: #004d40; color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 800; cursor: pointer; transition: transform 0.15s ease, opacity 0.2s ease; box-shadow: 0 4px 12px rgba(0,77,64,0.3); }
+    .log-button:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+    .log-button:active:not(:disabled) { transform: scale(0.99); }
 
-        .progress-section {
-            background: #f5f9f7;
-            padding: 20px;
-            border-bottom: 1px solid #d4e8dd;
-        }
+    .history-section { padding: 18px; background: #f5f9f7; border-top: 1px solid #d4e8dd; }
+    .history-item { display: flex; align-items: center; padding: 12px; background: white; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,77,64,0.05); border: 1px solid #e0f2e9; }
+    .history-emoji { font-size: 22px; margin-right: 12px; width: 44px; height: 44px; background: #f5f9f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .history-details { flex: 1; }
+    .history-name { font-weight: 800; color: #004d40; font-size: 13px; }
+    .history-time { font-size: 11px; color: #5e7a6b; margin-top: 4px; }
+    .history-tag { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
+    .empty-state { text-align: center; padding: 24px 14px; color: #5e7a6b; background: white; border-radius: 16px; font-size: 13px; }
 
-        .week-indicator {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+    .footer-note { text-align: center; padding: 14px; background: #f5f9f7; font-size: 11px; color: #5e7a6b; border-top: 1px solid #d4e8dd; }
 
-        .week-badge {
-            background: #004d40;
-            color: white;
-            padding: 8px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            display: inline-block;
-            font-size: 14px;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background: #d4e8dd;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #004d40, #2e8b57);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-            background: white;
-            padding: 15px 10px;
-            border-radius: 16px;
-            box-shadow: 0 4px 10px rgba(0,77,64,0.1);
-        }
-
-        .stat-item {
-            flex: 1;
-        }
-
-        .stat-number {
-            font-size: 26px;
-            font-weight: bold;
-            color: #004d40;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #5e7a6b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .actions-section {
-            padding: 20px;
-        }
-
-        .section-title {
-            color: #004d40;
-            font-size: 18px;
-            margin-bottom: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .habit-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .habit-card {
-            background: #f5f9f7;
-            border-radius: 16px;
-            padding: 16px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            box-shadow: 0 2px 6px rgba(0,77,64,0.1);
-        }
-
-        .habit-card.selected {
-            background: #e0f2e9;
-            border-color: #004d40;
-            transform: scale(0.98);
-            box-shadow: 0 4px 12px rgba(0,77,64,0.2);
-        }
-
-        .habit-emoji {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .habit-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #004d40;
-            line-height: 1.3;
-            min-height: 34px;
-        }
-
-        .habit-points {
-            font-size: 12px;
-            color: #2e8b57;
-            margin-top: 6px;
-            font-weight: 600;
-            background: rgba(46,139,87,0.1);
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-        }
-
-        .log-button {
-            background: #004d40;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,77,64,0.3);
-        }
-
-        .log-button:disabled {
-            background: #b0cfc0;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .log-button:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        .tips-card {
-            background: #e8f4f0;
-            padding: 15px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border-left: 4px solid #004d40;
-        }
-
-        .tips-card p {
-            color: #004d40;
-            font-size: 14px;
-            font-style: italic;
-        }
-
-        .history-section {
-            padding: 20px;
-            background: #f5f9f7;
-            border-top: 1px solid #d4e8dd;
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 14px;
-            background: white;
-            border-radius: 14px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0,77,64,0.05);
-            border: 1px solid #e0f2e9;
-        }
-
-        .history-emoji {
-            font-size: 24px;
-            margin-right: 15px;
-            width: 48px;
-            height: 48px;
-            background: #f5f9f7;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .history-details {
-            flex: 1;
-        }
-
-        .history-name {
-            font-weight: 600;
-            color: #004d40;
-            font-size: 14px;
-        }
-
-        .history-time {
-            font-size: 11px;
-            color: #5e7a6b;
-            margin-top: 4px;
-        }
-
-        .history-points {
-            background: #004d40;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: #5e7a6b;
-            background: white;
-            border-radius: 16px;
-            font-size: 14px;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            max-width: 460px;
-            margin: 0 auto;
-            background: #004d40;
-            color: white;
-            padding: 16px;
-            border-radius: 16px;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            display: none;
-            z-index: 1000;
-            font-weight: 500;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .reset-button {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 12px;
-            font-size: 14px;
-            cursor: pointer;
-            margin: 15px 0;
-            opacity: 0.8;
-        }
-
-        .share-section {
-            padding: 15px 20px 20px;
-            text-align: center;
-        }
-
-        .share-button {
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 30px;
-            font-size: 15px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .footer-note {
-            text-align: center;
-            padding: 15px;
-            background: #f5f9f7;
-            font-size: 11px;
-            color: #5e7a6b;
-            border-top: 1px solid #d4e8dd;
-        }
-
-        .challenge-title {
-            font-size: 12px;
-            color: #ffb300;
-            margin-top: 5px;
-            font-weight: normal;
-        }
-
-        .run-button-container {
-            padding: 20px;
-            text-align: center;
-            background: #f0f7f4;
-            border-top: 2px dashed #004d40;
-        }
-
-        .run-button {
-            background: #004d40;
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 6px 15px rgba(0,77,64,0.4);
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .run-button:hover, .run-button:active {
-            background: #1e4d3b;
-            transform: scale(1.05);
-        }
-
-        .run-button:active {
-            transform: scale(0.95);
-        }
-    </style>
+    .notification { position: fixed; bottom: 18px; left: 18px; right: 18px; max-width: 520px; margin: 0 auto; background: #004d40; color: white; padding: 14px; border-radius: 16px; text-align: center; display: none; z-index: 1000; font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="flag-badge">🇿🇦 Mzansi</div>
-            <h1>🌍 EcoSA <span style="font-size: 14px;">Tracker</span></h1>
-            <p>Your daily sustainable habits in South Africa</p>
-            <div class="challenge-title">4-8 Week Green Challenge</div>
-        </div>
-
-        <div class="progress-section">
-            <div class="week-indicator">
-                <span class="week-badge" id="weekDisplay">Week 1 of 8</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="totalPoints">0</div>
-                    <div class="stat-label">Green Points</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalLogs">0</div>
-                    <div class="stat-label">Actions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="streakDays">0</div>
-                    <div class="stat-label">Day Streak</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="actions-section">
-            <div class="section-title">
-                <span>🌱</span> Today's Sustainable Actions
-            </div>
-            <div class="habit-grid" id="habitGrid">
-                <!-- Habits will be populated by JavaScript -->
-            </div>
-
-            <div class="tips-card">
-                <p>💚 "Small changes, big impact. Every action helps South Africa!"</p>
-            </div>
-
-            <button class="log-button" id="logButton" disabled>✓ Log My Sustainable Action</button>
-        </div>
-
-        <div class="history-section">
-            <div class="section-title">
-                <span>📊</span> Your Green Journey
-            </div>
-            <div id="historyList">
-                <div class="empty-state">
-                    🌍 Start your sustainable journey today!<br>
-                    Log your first eco-friendly action.
-                </div>
-            </div>
-        </div>
-
-        <div class="share-section">
-            <button class="share-button" id="shareButton">
-                <span>📤</span> Share on WhatsApp
-            </button>
-        </div>
-        
-        <div style="padding: 0 20px; text-align: center;">
-            <button class="reset-button" id="resetButton">↺ Reset Challenge</button>
-        </div>
-
-        <div class="run-button-container">
-            <button class="run-button" id="runButton">
-                <span>▶</span> Run App
-            </button>
-            <p style="margin-top: 10px; font-size: 12px; color: #5e7a6b;">Click to start tracking your habits</p>
-        </div>
-
-        <div class="footer-note">
-            🇿🇦 Making South Africa greener, one action at a time • 4-8 Week Challenge
-        </div>
+  <div class="container">
+    <div class="header">
+      <div class="flag-badge">🇿🇦 EcoSA</div>
+      <h1>🌍 EcoSA <span style="font-size: 14px; opacity: 0.9;">Study Tracker</span></h1>
+      <p>Daily sustainable consumption logging (8 weeks)</p>
+      <div class="subline" id="pidLine">Participant: —</div>
     </div>
 
-    <div class="notification" id="notification"></div>
+    <div class="progress-section">
+      <div class="week-indicator">
+        <span class="week-badge" id="weekDisplay">Week — of 8</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+      </div>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-number" id="totalLogs">0</div>
+          <div class="stat-label">Total Logs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="activeDays">0</div>
+          <div class="stat-label">Active Days</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="streakDays">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+    </div>
 
-    <script>
-        // South Africa specific sustainable habits - CORRECTED
-        const habits = [
-            { 
-                id: 1, 
-                name: 'Refused Products with Excessive Packaging', 
-                description: 'Refused products with too much plastic',
-                emoji: '📦❌', 
-                points: 15 
-            },
-            { 
-                id: 2, 
-                name: 'Avoided Unnecessary Purchases', 
-                description: 'Only bought what I really need',
-                emoji: '💭🚫', 
-                points: 10 
-            },
-            { 
-                id: 3, 
-                name: 'Used Reusable Shopping Bags', 
-                description: 'Brought my own shopping bags',
-                emoji: '🛍️', 
-                points: 10 
-            },
-            { 
-                id: 4, 
-                name: 'Donated/Gave Away Unused Items Instead of Throwing Them Away', 
-                description: 'Extended product life through donation',
-                emoji: '🎁', 
-                points: 20 
-            },
-            { 
-                id: 5, 
-                name: 'Separated Glass, Plastic, and Paper for Recycling', 
-                description: 'Sorted glass, plastic, and paper',
-                emoji: '♻️', 
-                points: 15 
-            },
-            { 
-                id: 6, 
-                name: 'Reduced Water Usage', 
-                description: 'Conserved water at home',
-                emoji: '💧', 
-                points: 20 
-            },
-            { 
-                id: 7, 
-                name: 'Geyser Switched Off When Not Needed', 
-                description: 'Turned off geyser when not needed',
-                emoji: '⚡', 
-                points: 25 
-            },
-            { 
-                id: 8, 
-                name: 'Repaired Broken Items Instead of Buying New', 
-                description: 'Fixed broken items rather than buying new',
-                emoji: '🔧', 
-                points: 20 
-            }
-        ];
+    <div class="actions-section">
+      <div class="section-title"><span>🌱</span> Today’s Actions</div>
 
-        // App state
-        let state = {
-            totalPoints: 0,
-            totalLogs: 0,
-            streakDays: 0,
-            currentWeek: 1,
-            challengeLength: 8, // Can be changed to 4 weeks
-            lastLogDate: null,
-            selectedHabit: null,
-            history: [],
-            startDate: new Date().toISOString(),
-            isRunning: false
-        };
+      <div class="tips-card" id="tipsCard">
+        <div id="contextPill" class="context-pill" style="display:none;"></div>
+        <p id="contextText">Loading study context…</p>
+        <div class="rule-text">
+          Rule: You may log up to one action in each category per day (PURCHASE, CIRCULARITY, RESOURCE).
+          If you completed multiple actions within a category, log only the most effortful one.
+        </div>
+      </div>
 
-        // Load state from localStorage
-        function loadState() {
-            const saved = localStorage.getItem('ecoSaTrackerState');
-            if (saved) {
-                try {
-                    state = JSON.parse(saved);
-                    updateStreak();
-                } catch (e) {
-                    console.error('Failed to load state');
-                    initializeNewUser();
-                }
-            } else {
-                initializeNewUser();
-            }
-            renderHabits();
-            updateUI();
-        }
+      <div class="habit-grid" id="habitGrid"></div>
 
-        function initializeNewUser() {
-            // Check if user wants 4 or 8 week challenge
-            const challengeLength = confirm('Welcome! Do you want the 8-week challenge? Click OK for 8 weeks, Cancel for 4 weeks.') ? 8 : 4;
-            state.challengeLength = challengeLength;
-            saveState();
-        }
+      <button class="log-button" id="logButton" disabled>✓ Log Selected Action</button>
+    </div>
 
-        // Save state to localStorage
-        function saveState() {
-            localStorage.setItem('ecoSaTrackerState', JSON.stringify(state));
-        }
+    <div class="history-section">
+      <div class="section-title"><span>📊</span> Recent Logs</div>
+      <div id="historyList">
+        <div class="empty-state">No logs yet. Select an action you completed today and log it.</div>
+      </div>
+    </div>
 
-        // Update streak based on last log date
-        function updateStreak() {
-            if (state.lastLogDate) {
-                const last = new Date(state.lastLogDate);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                last.setHours(0, 0, 0, 0);
-                
-                const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
-                
-                if (diffDays > 1) {
-                    state.streakDays = 0;
-                }
-            }
-            saveState();
-        }
+    <div class="footer-note">
+      Study mode: no reset, no sharing, no local editing. All records are stored securely.
+    </div>
+  </div>
 
-        // Calculate current week (1-8)
-        function calculateWeek() {
-            if (state.history.length === 0) return 1;
-            
-            const firstLog = new Date(state.history[state.history.length - 1].timestamp);
-            const today = new Date();
-            const daysDiff = Math.floor((today - firstLog) / (1000 * 60 * 60 * 24));
-            
-            state.currentWeek = Math.min(state.challengeLength, Math.max(1, Math.floor(daysDiff / 7) + 1));
-            document.getElementById('weekDisplay').textContent = `Week ${state.currentWeek} of ${state.challengeLength}`;
-            
-            // Update progress bar
-            const progress = (state.currentWeek / state.challengeLength) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-        }
+  <div class="notification" id="notification"></div>
 
-        // Log a sustainable action
-        function logAction() {
-            if (!state.selectedHabit) return;
+  <!-- Firebase + App logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc, getDoc, setDoc, runTransaction,
+      collection, query, where, orderBy, limit, getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-            const habit = habits.find(h => h.id === state.selectedHabit);
-            if (!habit) return;
+    // =========================
+    // 1) FIREBASE CONFIG (PASTE YOURS)
+    // =========================
+   const firebaseConfig = {
+  apiKey: "AIzaSyCNCfnvq8R8ImxVzxZkNZss8grgfkZE-l8",
+  authDomain: "ecosa-study.firebaseapp.com",
+  projectId: "ecosa-study",
+  storageBucket: "ecosa-study.firebasestorage.app",
+  messagingSenderId: "533863345637",
+  appId: "1:533863345637:web:bd72377d2b1cb60038930c",
+  measurementId: "G-8S3ZSMM29V"
+};
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const todayStr = today.toISOString();
-            
-            // Check if already logged today
-            const loggedToday = state.history.some(log => {
-                const logDate = new Date(log.timestamp);
-                logDate.setHours(0, 0, 0, 0);
-                return logDate.getTime() === today.getTime() && log.habitId === habit.id;
-            });
+    // =========================
+    // 2) HABITS (JCR-GRADE SET, 9 ITEMS)
+    // Categories = lifecycle domains: purchase, circularity, resource
+    // =========================
+    const habits = [
+      // Purchase-stage (Consumption restraint / public choice)
+      { id: 1, name: "Refused Products with Excessive Packaging", emoji: "📦❌", category: "purchase" },
+      { id: 2, name: "Avoided Unnecessary Purchases", emoji: "💭🚫", category: "purchase" },
+      { id: 3, name: "Used Reusable Shopping Bags", emoji: "🛍️", category: "purchase" },
+      { id: 9, name: "Chose a More Environmentally Sustainable Option in a Public Setting", emoji: "🌱🏪", category: "purchase" },
 
-            if (loggedToday) {
-                showNotification(`You already logged ${habit.name} today!`, 'warning');
-                return;
-            }
+      // Post-purchase (Circularity / life extension)
+      { id: 4, name: "Donated or Gave Away Unused Items", emoji: "🎁", category: "circularity" },
+      { id: 5, name: "Separated Glass, Plastic, and Paper for Recycling", emoji: "♻️", category: "circularity" },
+      { id: 8, name: "Repaired Broken Items Instead of Buying New", emoji: "🔧", category: "circularity" },
 
-            // Update streak
-            if (state.lastLogDate) {
-                const last = new Date(state.lastLogDate);
-                last.setHours(0, 0, 0, 0);
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                if (last.getTime() === yesterday.getTime()) {
-                    state.streakDays++;
-                } else if (last.getTime() < yesterday.getTime()) {
-                    state.streakDays = 1;
-                }
-            } else {
-                state.streakDays = 1;
-            }
+      // Usage-stage (Resource stewardship)
+      { id: 6, name: "Reduced Water Usage", emoji: "💧", category: "resource" },
+      { id: 7, name: "Switched Off Geyser When Not Needed", emoji: "⚡", category: "resource" }
+    ];
 
-            state.lastLogDate = todayStr;
+    // =========================
+    // 3) STATE
+    // =========================
+    const Study = { pid: null, uid: null, condition: null, studyStartISO: null };
+    let selectedHabitId = null;
 
-            // Add to history
-            const logEntry = {
-                id: Date.now(),
-                habitId: habit.id,
-                name: habit.name,
-                emoji: habit.emoji,
-                points: habit.points,
-                timestamp: new Date().toISOString()
-            };
-
-            state.history.unshift(logEntry);
-            state.totalPoints += habit.points;
-            state.totalLogs++;
-
-            calculateWeek();
-            saveState();
-            updateUI();
-            
-            showNotification(`✨ +${habit.points} points for ${habit.name}!`, 'success');
-            
-            // Show special message for geyser
-            if (habit.id === 7) {
-                showNotification('💡 Great! Saving electricity helps with load shedding!', 'info');
-            }
-        }
-
-        // Update UI elements
-        function updateUI() {
-            document.getElementById('totalPoints').textContent = state.totalPoints;
-            document.getElementById('totalLogs').textContent = state.totalLogs;
-            document.getElementById('streakDays').textContent = state.streakDays;
-            
-            renderHistory();
-            calculateWeek();
-        }
-
-        // Render habit grid
-        function renderHabits() {
-            const grid = document.getElementById('habitGrid');
-            grid.innerHTML = '';
-            
-            habits.forEach(habit => {
-                const card = document.createElement('div');
-                card.className = `habit-card ${state.selectedHabit === habit.id ? 'selected' : ''}`;
-                card.innerHTML = `
-                    <div class="habit-emoji">${habit.emoji}</div>
-                    <div class="habit-name">${habit.name}</div>
-                    <div class="habit-points">+${habit.points}</div>
-                `;
-                
-                card.addEventListener('click', () => {
-                    state.selectedHabit = habit.id;
-                    renderHabits();
-                    document.getElementById('logButton').disabled = false;
-                });
-                
-                grid.appendChild(card);
-            });
-        }
-
-        // Render history list
-        function renderHistory() {
-            const historyList = document.getElementById('historyList');
-            
-            if (state.history.length === 0) {
-                historyList.innerHTML = '<div class="empty-state">🌱 No actions yet. Start your green journey today!</div>';
-                return;
-            }
-
-            historyList.innerHTML = '';
-            state.history.slice(0, 10).forEach(log => {
-                const timeAgo = getTimeAgo(new Date(log.timestamp));
-                
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.innerHTML = `
-                    <div class="history-emoji">${log.emoji}</div>
-                    <div class="history-details">
-                        <div class="history-name">${log.name}</div>
-                        <div class="history-time">${timeAgo}</div>
-                    </div>
-                    <div class="history-points">+${log.points}</div>
-                `;
-                
-                historyList.appendChild(item);
-            });
-        }
-
-        // Get time ago string
-        function getTimeAgo(date) {
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMins / 60);
-            const diffDays = Math.floor(diffHours / 24);
-
-            if (diffMins < 1) return 'Just now';
-            if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-            if (diffDays === 1) return 'Yesterday';
-            return `${diffDays} days ago`;
-        }
-
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.backgroundColor = type === 'success' ? '#004d40' : '#856404';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-
-        // Share progress
-        async function shareProgress() {
-            const shareText = `🇿🇦 My EcoSA Tracker Progress:\n` +
-                `🌱 Green Points: ${state.totalPoints}\n` +
-                `✅ Actions Taken: ${state.totalLogs}\n` +
-                `🔥 Day Streak: ${state.streakDays}\n` +
-                `📅 Week ${state.currentWeek} of ${state.challengeLength}\n\n` +
-                `Join me in making South Africa greener! 🌍♻️`;
-
-            // WhatsApp specific sharing
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('📋 Progress copied to clipboard!');
-            }).catch(() => {
-                alert('Copy manually: ' + text);
-            });
-        }
-
-        // Reset challenge
-        function resetChallenge() {
-            if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
-                const challengeLength = confirm('Choose challenge length: OK for 8 weeks, Cancel for 4 weeks') ? 8 : 4;
-                
-                state = {
-                    totalPoints: 0,
-                    totalLogs: 0,
-                    streakDays: 0,
-                    currentWeek: 1,
-                    challengeLength: challengeLength,
-                    lastLogDate: null,
-                    selectedHabit: null,
-                    history: [],
-                    startDate: new Date().toISOString(),
-                    isRunning: true
-                };
-                saveState();
-                updateUI();
-                renderHabits();
-                showNotification('✨ New challenge started! Good luck!');
-            }
-        }
-
-        // Run app function
-        function runApp() {
-            state.isRunning = true;
-            document.querySelector('.run-button-container').style.display = 'none';
-            showNotification('🚀 EcoSA Tracker is now running! Start logging your habits.', 'success');
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Event listeners
-        document.getElementById('logButton').addEventListener('click', logAction);
-        document.getElementById('shareButton').addEventListener('click', shareProgress);
-        document.getElementById('resetButton').addEventListener('click', resetChallenge);
-        document.getElementById('runButton').addEventListener('click', runApp);
-
-        // Initialize
-        loadState();
-
-        // Data export function
-function exportData() {
-    const allData = localStorage.getItem('ecoSaTrackerState');
-    if (!allData) {
-        showNotification('No data to export!', 'warning');
-        return;
+    // =========================
+    // 4) HELPERS (CALENDAR DAY BUCKET = LOCAL DAY)
+    // =========================
+    function getParam(name) {
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
     }
-    
-    const data = JSON.parse(allData);
-    const exportData = {
-        exportDate: new Date().toISOString(),
-        userData: data
-    };
-    
-    const jsonString = JSON.stringify(exportData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ecosa-export-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showNotification('📊 Data exported!');
-}
 
-// Add export button
-setTimeout(() => {
-    const shareSection = document.querySelector('.share-section');
-    if (shareSection) {
-        const exportBtn = document.createElement('button');
-        exportBtn.className = 'share-button';
-        exportBtn.style.background = '#004d40';
-        exportBtn.style.marginTop = '10px';
-        exportBtn.innerHTML = '<span>📊</span> Export Data';
-        exportBtn.onclick = exportData;
-        shareSection.appendChild(exportBtn);
+    function localDayKey(d = new Date()) {
+      // YYYY-MM-DD in LOCAL time (not UTC)
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
     }
-}, 500);
 
-        // Add touch feedback
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('touchstart', function() {
-                this.style.opacity = '0.8';
-            });
-            button.addEventListener('touchend', function() {
-                this.style.opacity = '1';
-            });
+    function computeWeek(studyStartISO) {
+      const start = new Date(studyStartISO);
+      const now = new Date();
+      const ms = now - start;
+      const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+      return Math.min(8, Math.max(1, Math.floor(days / 7) + 1));
+    }
+
+    function showNotification(message, type = "ok") {
+      const el = document.getElementById("notification");
+      el.textContent = message;
+      el.style.background = (type === "warn") ? "#856404" : (type === "err") ? "#7f1d1d" : "#004d40";
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 3200);
+    }
+
+    function prettyCategory(cat) {
+      if (cat === "purchase") return "PURCHASE";
+      if (cat === "circularity") return "CIRCULARITY";
+      if (cat === "resource") return "RESOURCE";
+      return cat.toUpperCase();
+    }
+
+    // =========================
+    // 5) FIREBASE INIT
+    // =========================
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // =========================
+    // 6) RENDER HABITS
+    // =========================
+    function renderHabits() {
+      const grid = document.getElementById("habitGrid");
+      grid.innerHTML = "";
+
+      habits.forEach(habit => {
+        const card = document.createElement("div");
+        card.className = `habit-card ${selectedHabitId === habit.id ? "selected" : ""}`;
+        card.innerHTML = `
+          <div class="habit-emoji">${habit.emoji}</div>
+          <div class="habit-name">${habit.name}</div>
+          <div class="habit-category">${prettyCategory(habit.category)}</div>
+        `;
+        card.addEventListener("click", () => {
+          selectedHabitId = habit.id;
+          document.getElementById("logButton").disabled = false;
+          renderHabits();
         });
+        grid.appendChild(card);
+      });
+    }
 
-        // Hide run button if app was already running
-        if (state.isRunning) {
-            document.querySelector('.run-button-container').style.display = 'none';
+    // =========================
+    // 7) CONDITION PANEL
+    // =========================
+    function renderContext(condition) {
+      const pill = document.getElementById("contextPill");
+      const text = document.getElementById("contextText");
+
+      pill.style.display = "inline-flex";
+
+      if (condition === "competitive") {
+        pill.className = "context-pill context-competitive";
+        pill.innerHTML = "🏆 Competitive Context";
+        text.textContent = "This study version emphasizes performance relative to other participants in the study.";
+      } else {
+        pill.className = "context-pill context-duty";
+        pill.innerHTML = "🤝 Duty Context";
+        text.textContent = "This study version emphasizes shared responsibility and doing your part for the community.";
+      }
+    }
+
+    // =========================
+    // 8) CLAIM PID + LOCK CONDITION (ANON AUTH)
+    // =========================
+    async function bootStudy() {
+      Study.pid = getParam("pid");
+      if (!Study.pid) {
+        showNotification("Missing participant id. Open the link with ?pid=SA0001", "err");
+        document.getElementById("contextText").textContent = "Missing participant id (pid).";
+        return;
+      }
+
+      document.getElementById("pidLine").textContent = `Participant: ${Study.pid}`;
+
+      const cred = await signInAnonymously(auth);
+      Study.uid = cred.user.uid;
+
+      const pRef = doc(db, "participants", Study.pid);
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(pRef);
+
+        if (!snap.exists()) {
+          // Assign once, lock forever
+          const condition = (Math.random() < 0.5) ? "competitive" : "duty";
+          const startISO = new Date().toISOString();
+
+          tx.set(pRef, {
+            uid: Study.uid,
+            condition,
+            studyStartISO: startISO,
+            createdAt: serverTimestamp()
+          });
+
+          Study.condition = condition;
+          Study.studyStartISO = startISO;
+          return;
         }
-    </script>
+
+        const data = snap.data();
+
+        // Prevent reuse of same PID on a different device (pid hijack)
+        if (data.uid && data.uid !== Study.uid) {
+          throw new Error("This participant link has already been used on another device.");
+        }
+
+        // Claim if uid missing (rare)
+        if (!data.uid) {
+          tx.update(pRef, { uid: Study.uid });
+        }
+
+        Study.condition = data.condition;
+        Study.studyStartISO = data.studyStartISO;
+      });
+
+      renderContext(Study.condition);
+      renderHabits();
+      wireLogButton();
+      await refreshUIFromServer();
+    }
+
+    // =========================
+    // 9) JCR-GRADE LOGGING RULES
+    // - 1 per habit per day (deterministic doc id)
+    // - 1 per category per day (category cap; max 3/day)
+    // - calendar day bucket (local)
+    // =========================
+    async function logSelectedHabit() {
+      if (!selectedHabitId) {
+        showNotification("Select an action first.", "warn");
+        return;
+      }
+
+      const habit = habits.find(h => h.id === selectedHabitId);
+      if (!habit) {
+        showNotification("Invalid selection.", "err");
+        return;
+      }
+
+      const dayKey = localDayKey(new Date());
+      const logId = `${dayKey}_${habit.id}`;
+      const logRef = doc(db, "participants", Study.pid, "logs", logId);
+
+      // A) Block duplicate habit same day
+      const existing = await getDoc(logRef);
+      if (existing.exists()) {
+        showNotification("You already logged this action today.", "warn");
+        return;
+      }
+
+      // B) Block second action in same category same day
+      const logsCol = collection(db, "participants", Study.pid, "logs");
+      const q = query(
+        logsCol,
+        where("dayKey", "==", dayKey),
+        where("category", "==", habit.category)
+      );
+      const catSnap = await getDocs(q);
+      if (!catSnap.empty) {
+        showNotification(
+          `Already logged one ${prettyCategory(habit.category)} action today. Log only the most effortful one in that category.`,
+          "warn"
+        );
+        return;
+      }
+
+      // C) Write immutable record (no edits, no deletes in rules)
+      await setDoc(logRef, {
+        habitId: habit.id,
+        category: habit.category,
+        dayKey,
+        clientISO: new Date().toISOString(),
+        serverTime: serverTimestamp()
+      });
+
+      showNotification("Action recorded.", "ok");
+      await refreshUIFromServer();
+    }
+
+    function wireLogButton() {
+      const btn = document.getElementById("logButton");
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await logSelectedHabit();
+        } catch (e) {
+          showNotification(e?.message || "Could not log action.", "err");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // =========================
+    // 10) READ LOGS + COMPUTE METRICS
+    // (Max volume is small: 3/day * 56 = 168 docs per person)
+    // =========================
+    async function refreshUIFromServer() {
+      const pRef = doc(db, "participants", Study.pid);
+      const pSnap = await getDoc(pRef);
+      const pdata = pSnap.data();
+
+      const week = computeWeek(pdata.studyStartISO);
+      document.getElementById("weekDisplay").textContent = `Week ${week} of 8`;
+      document.getElementById("progressFill").style.width = `${(week / 8) * 100}%`;
+
+      const logsCol = collection(db, "participants", Study.pid, "logs");
+      const allSnap = await getDocs(query(logsCol, orderBy("dayKey", "desc")));
+      const allLogs = [];
+      allSnap.forEach(d => allLogs.push(d.data()));
+
+      // totals
+      document.getElementById("totalLogs").textContent = String(allLogs.length);
+
+      // active days
+      const days = new Set(allLogs.map(x => x.dayKey).filter(Boolean));
+      document.getElementById("activeDays").textContent = String(days.size);
+
+      // streak (local day key backward)
+      let streak = 0;
+      const cursor = new Date();
+      cursor.setHours(0,0,0,0);
+      while (true) {
+        const k = localDayKey(cursor);
+        if (days.has(k)) {
+          streak += 1;
+          cursor.setDate(cursor.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      document.getElementById("streakDays").textContent = String(streak);
+
+      // recent logs (by serverTime if present, else dayKey)
+      const recentQ = query(logsCol, orderBy("serverTime", "desc"), limit(10));
+      const recentSnap = await getDocs(recentQ);
+      const recent = [];
+      recentSnap.forEach(d => recent.push(d.data()));
+      renderHistory(recent);
+    }
+
+    function renderHistory(logs) {
+      const historyList = document.getElementById("historyList");
+      if (!logs || logs.length === 0) {
+        historyList.innerHTML = `<div class="empty-state">No logs yet. Select an action you completed today and log it.</div>`;
+        return;
+      }
+
+      historyList.innerHTML = "";
+      logs.forEach(x => {
+        const habit = habits.find(h => h.id === x.habitId);
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.innerHTML = `
+          <div class="history-emoji">${habit?.emoji || "🌱"}</div>
+          <div class="history-details">
+            <div class="history-name">${habit?.name || "Action"}</div>
+            <div class="history-time">${x.dayKey || ""}</div>
+            <div class="history-tag">${prettyCategory(x.category || "")}</div>
+          </div>
+        `;
+        historyList.appendChild(item);
+      });
+    }
+
+    // =========================
+    // 11) START
+    // =========================
+    bootStudy().catch(err => {
+      showNotification(err?.message || "Failed to start study.", "err");
+      document.getElementById("contextText").textContent = err?.message || "Failed to start study.";
+    });
+  </script>
 </body>
 </html>
