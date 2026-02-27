@@ -479,3 +479,231 @@
   </script>
 </body>
 </html>
+// ============================================
+// MANIPULATION CHECK & BEHAVIORAL TRACKING
+// ============================================
+
+// Track behavioral indicators
+function trackBehavioralIndicator(type, value) {
+    const participantRef = doc(db, "participants", Study.pid);
+    
+    // Create behavioral tracking object
+    const behavioralData = {
+        timestamp: new Date().toISOString(),
+        type: type,
+        value: value,
+        dayKey: localDayKey()
+    };
+    
+    // Store in a subcollection for behavioral indicators
+    const behaviorRef = doc(collection(db, "participants", Study.pid, "behavior"));
+    setDoc(behaviorRef, behavioralData).catch(e => console.log("Behavior tracked:", type));
+}
+
+// Check if manipulation check is needed
+async function checkManipulationTiming() {
+    if (!Study.pid) return;
+    
+    try {
+        const participantRef = doc(db, "participants", Study.pid);
+        const participantSnap = await getDoc(participantRef);
+        const participantData = participantSnap.data();
+        
+        // Calculate days active based on first log
+        const logsCol = collection(db, "participants", Study.pid, "logs");
+        const logsSnap = await getDocs(query(logsCol, orderBy("dayKey", "asc"), limit(1)));
+        
+        let daysActive = 0;
+        if (!logsSnap.empty) {
+            const firstLog = logsSnap.docs[0].data();
+            const firstDay = new Date(firstLog.dayKey);
+            const today = new Date();
+            const diffTime = Math.abs(today - firstDay);
+            daysActive = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+        
+        // Check if already completed manipulation check
+        const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
+        const checkSnap = await getDoc(checkRef);
+        
+        // Show modal if active for 3+ days and check not completed
+        if (daysActive >= 3 && !checkSnap.exists()) {
+            setTimeout(() => showManipulationCheckModal(), 1000);
+        }
+    } catch (e) {
+        console.log("Check timing error:", e);
+    }
+}
+
+// Show manipulation check modal
+function showManipulationCheckModal() {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.id = 'manipulationModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 20px;
+    `;
+    
+    // Modal content
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 24px;
+            max-width: 450px;
+            width: 100%;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        ">
+            <h3 style="color: #004d40; margin-bottom: 15px; font-size: 22px;">🤔 Quick Check-in</h3>
+            <p style="color: #5e7a6b; margin-bottom: 20px;">Help us improve the study by answering 3 quick questions:</p>
+            
+            <div style="margin-bottom: 25px;">
+                <p style="font-weight: 600; color: #004d40; margin-bottom: 10px;">1. What do you think this study focuses on?</p>
+                <label style="display: block; margin-bottom: 8px;">
+                    <input type="radio" name="focus" value="competitive" style="margin-right: 8px;">
+                    <span>Comparing my sustainable habits to others</span>
+                </label>
+                <label style="display: block; margin-bottom: 8px;">
+                    <input type="radio" name="focus" value="duty" style="margin-right: 8px;">
+                    <span>Contributing to environmental efforts in South Africa</span>
+                </label>
+                <label style="display: block; margin-bottom: 8px;">
+                    <input type="radio" name="focus" value="personal" style="margin-right: 8px;">
+                    <span>Learning about my own behavior</span>
+                </label>
+                <label style="display: block;">
+                    <input type="radio" name="focus" value="unsure" style="margin-right: 8px;">
+                    <span>Not sure</span>
+                </label>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <p style="font-weight: 600; color: #004d40; margin-bottom: 10px;">2. When logging actions, how often do you think about other participants?</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="font-size: 12px;">Never</span>
+                    <span style="font-size: 12px;">Constantly</span>
+                </div>
+                <input type="range" id="othersScale" min="1" max="7" value="4" style="width: 100%;">
+                <div style="text-align: center; margin-top: 5px;">
+                    <span id="othersValue" style="font-weight: 600; color: #004d40;">4</span>/7
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <p style="font-weight: 600; color: #004d40; margin-bottom: 10px;">3. When logging actions, how often do you feel you're helping the community?</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="font-size: 12px;">Never</span>
+                    <span style="font-size: 12px;">Constantly</span>
+                </div>
+                <input type="range" id="communityScale" min="1" max="7" value="4" style="width: 100%;">
+                <div style="text-align: center; margin-top: 5px;">
+                    <span id="communityValue" style="font-weight: 600; color: #004d40;">4</span>/7
+                </div>
+            </div>
+            
+            <button onclick="submitManipulationCheck()" style="
+                background: #004d40;
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 12px;
+                width: 100%;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+            ">Submit Answers</button>
+            
+            <p style="text-align: center; margin-top: 15px; font-size: 12px; color: #999;">
+                Your responses help improve the study design.
+            </p>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add event listeners for range sliders
+    document.getElementById('othersScale').addEventListener('input', function(e) {
+        document.getElementById('othersValue').textContent = e.target.value;
+    });
+    
+    document.getElementById('communityScale').addEventListener('input', function(e) {
+        document.getElementById('communityValue').textContent = e.target.value;
+    });
+}
+
+// Submit manipulation check responses
+window.submitManipulationCheck = async function() {
+    const focus = document.querySelector('input[name="focus"]:checked')?.value;
+    const othersScale = document.getElementById('othersScale').value;
+    const communityScale = document.getElementById('communityScale').value;
+    
+    if (!focus) {
+        alert('Please answer question 1');
+        return;
+    }
+    
+    try {
+        // Save to Firestore
+        const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
+        await setDoc(checkRef, {
+            focus: focus,
+            othersScale: parseInt(othersScale),
+            communityScale: parseInt(communityScale),
+            condition: Study.condition,
+            completedAt: new Date().toISOString(),
+            dayKey: localDayKey()
+        });
+        
+        // Track behavioral indicator (they engaged with the check)
+        trackBehavioralIndicator('manipulation_check_completed', 1);
+        
+        // Remove modal
+        document.getElementById('manipulationModal').remove();
+        showNotification('✅ Thank you for your feedback!', 'success');
+        
+    } catch (e) {
+        showNotification('Error saving responses', 'error');
+    }
+};
+
+// Track logging patterns for behavioral indicators
+function trackLoggingBehavior(habit) {
+    if (!Study.pid) return;
+    
+    const hour = new Date().getHours();
+    
+    // Track time of day patterns
+    trackBehavioralIndicator('log_time', hour);
+    
+    // Track which categories they prioritize
+    trackBehavioralIndicator('category_logged', habit.category);
+    
+    // Track consistency (are they logging around same time?)
+    const timeKey = `${localDayKey()}_${hour}`;
+    trackBehavioralIndicator('logging_pattern', timeKey);
+}
+
+// Modify the existing logAction function to include behavioral tracking
+// Find the logAction function and add this line right after adding to history
+// (around line 250-260, after state.history.unshift(logEntry))
+
+// Add this line inside logAction function:
+trackLoggingBehavior(habit);
+
+// Call manipulation check timing after loading state
+// Add this line at the end of loadState() function (around line 200):
+setTimeout(checkManipulationTiming, 3000);
+
+// ============================================
+// END OF MANIPULATION CHECK CODE
+// ============================================
