@@ -20,49 +20,9 @@
     }
 
     /* Theme-specific styles */
-    .container.competitive .stat-number {
-      position: relative;
-      color: #c4450c;
-    }
-    .container.competitive .stat-number::after {
-      content: "⚡";
-      font-size: 14px;
-      margin-left: 5px;
-      opacity: 0.6;
-      animation: pulse 2s infinite;
-    }
-    .container.competitive .habit-card:hover {
-      border-color: #c4450c;
-      transform: scale(0.98);
-    }
-
-    .container.duty .habit-card::before {
-      content: "🌍";
-      font-size: 12px;
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      opacity: 0.3;
-    }
-    .container.duty .habit-card:hover {
-      background: #e8f4f0;
-      border-color: #004d40;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.1); }
-      100% { opacity: 0.3; transform: scale(1); }
-    }
-    @keyframes glow {
-      0% { box-shadow: 0 0 5px rgba(196,69,12,0.3); }
-      50% { box-shadow: 0 0 15px rgba(196,69,12,0.6); }
-      100% { box-shadow: 0 0 5px rgba(196,69,12,0.3); }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
+    .container.competitive .stat-number { position: relative; color: #c4450c; }
+    .container.competitive .habit-card:hover { border-color: #c4450c; transform: scale(0.98); }
+    .container.duty .habit-card:hover { background: #e8f4f0; border-color: #004d40; }
 
     .header { background: linear-gradient(135deg, #004d40, #1e4d3b); color: white; padding: 22px 18px 18px; text-align: center; position: relative; }
     .flag-badge { position: absolute; top: 14px; right: 14px; background: #ffb300; color: #004d40; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
@@ -87,9 +47,10 @@
     .tips-card { background: #e8f4f0; padding: 14px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid #004d40; }
     .tips-card p { color: #004d40; font-size: 13px; }
     .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; }
+    .reset-note { margin-top: 4px; font-size: 11px; color: #5e7a6b; font-style: italic; }
 
     .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 800; font-size: 12px; margin-bottom: 10px; }
-    .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); animation: glow 2s infinite; }
+    .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
     .context-duty { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
 
     .context-panel {
@@ -102,7 +63,7 @@
       transition: all 0.3s ease;
     }
     .context-panel-title { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; color: #004d40; opacity: 0.85; }
-    .context-panel-value { font-size: 22px; font-weight: 900; color: #004d40; margin-top: 6px; transition: all 0.3s ease; }
+    .context-panel-value { font-size: 20px; font-weight: 900; color: #004d40; margin-top: 6px; transition: all 0.3s ease; }
     .context-panel-sub { font-size: 12px; color: #5e7a6b; margin-top: 4px; }
 
     .habit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
@@ -176,8 +137,12 @@
     .notification.competitive { background: #c4450c; }
     .notification.duty { background: #004d40; }
 
-    /* Small accessibility boost */
     .habit-card:focus { outline: 2px solid rgba(0,77,64,0.5); outline-offset: 2px; }
+
+    @keyframes slideUp {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 
@@ -230,6 +195,7 @@
           Rule: You may log up to one action in each category per day (PURCHASE, CIRCULARITY, RESOURCE).
           If you completed multiple actions within a category, log only the most effortful one.
         </div>
+        <div class="reset-note">⏰ Logging resets at midnight local time.</div>
       </div>
 
       <div class="habit-grid" id="habitGrid"></div>
@@ -325,16 +291,8 @@
     function showNotification(message, type = "ok", contextClass = "") {
       const el = document.getElementById("notification");
       el.textContent = message;
-
-      // Base colour
-      el.style.background =
-        (type === "warn") ? "#856404" :
-        (type === "err") ? "#7f1d1d" :
-        "#004d40";
-
-      // Context theme overlay
+      el.style.background = (type === "warn") ? "#856404" : (type === "err") ? "#7f1d1d" : "#004d40";
       el.className = `notification ${contextClass || ""}`;
-
       el.style.display = "block";
       setTimeout(() => { el.style.display = "none"; }, 3200);
     }
@@ -349,22 +307,18 @@
     function getContextualMessage(condition) {
       if (condition === "competitive") {
         const messages = [
-          "🏆 Stay consistent. Momentum beats bursts.",
-          "🏆 Push for 2/3 or 3/3 category coverage today.",
-          "🏆 Small wins. Daily execution.",
-          "🏆 Beat your own baseline today.",
-          "🏆 Build streaks. Streaks build outcomes.",
-          "🏆 Keep pressure on: log what you actually did."
+          "🏆 Meeting high standards today.",
+          "🏆 Strive for excellence across categories.",
+          "🏆 Aim for your personal best.",
+          "🏆 Every action reflects your standards."
         ];
         return messages[Math.floor(Math.random() * messages.length)];
       } else {
         const messages = [
-          "🤝 Another action that supports the collective good.",
-          "🤝 Your daily actions add up over time.",
-          "🤝 Thank you for doing your part.",
-          "🤝 Consistency matters for shared outcomes.",
-          "🤝 Your action contributes to a broader effort.",
-          "🤝 One more action strengthens collective impact."
+          "🤝 Doing your part matters.",
+          "🤝 Your actions contribute to the community.",
+          "🤝 Responsibility shown today.",
+          "🤝 Thank you for participating."
         ];
         return messages[Math.floor(Math.random() * messages.length)];
       }
@@ -410,7 +364,7 @@
     }
 
     // =========================
-    // 7) SELF-BASED CONTEXT PANEL (JCR-SAFE)
+    // 7) SELF-BASED CONTEXT PANEL (NEUTRAL LANGUAGE)
     // =========================
     function computeCategoryCoverageForToday(allLogs) {
       const today = localDayKey(new Date());
@@ -451,44 +405,20 @@
       if (Study.condition === "competitive") {
         mainContainer.classList.add("competitive");
         mainContainer.classList.remove("duty");
-        panelTitle.textContent = "🏆 YOUR PERFORMANCE (SELF-BASED)";
-
-        if (coverageToday === 3) {
-          panelValue.textContent = "Score today: 3/3";
-          panelSub.textContent = `Full category coverage today. Weekly actions: ${weeklyCount}.`;
-        } else if (coverageToday === 2) {
-          panelValue.textContent = "Score today: 2/3";
-          panelSub.textContent = `One category left. Weekly actions: ${weeklyCount}.`;
-        } else if (coverageToday === 1) {
-          panelValue.textContent = "Score today: 1/3";
-          panelSub.textContent = `Add one more category today if applicable. Weekly actions: ${weeklyCount}.`;
-        } else {
-          panelValue.textContent = "Score today: 0/3";
-          panelSub.textContent = `Log your first action when completed. Weekly actions: ${weeklyCount}.`;
-        }
+        panelTitle.textContent = "🏆 HIGH STANDARDS (PERSONAL)";
+        panelValue.textContent = `Categories today: ${coverageToday} of 3`;
+        panelSub.textContent = `Logs this week: ${weeklyCount}`;
       } else {
         mainContainer.classList.add("duty");
         mainContainer.classList.remove("competitive");
-        panelTitle.textContent = "🤝 YOUR CONTRIBUTION (SELF-BASED)";
-
-        if (coverageToday === 3) {
-          panelValue.textContent = "High impact today";
-          panelSub.textContent = `You covered purchase, circularity, and resource. Weekly actions: ${weeklyCount}.`;
-        } else if (coverageToday === 2) {
-          panelValue.textContent = "Good impact today";
-          panelSub.textContent = `Two domains completed. Weekly actions: ${weeklyCount}.`;
-        } else if (coverageToday === 1) {
-          panelValue.textContent = "Impact started";
-          panelSub.textContent = `One domain completed. Weekly actions: ${weeklyCount}.`;
-        } else {
-          panelValue.textContent = "Impact pending";
-          panelSub.textContent = `Your next action matters. Weekly actions: ${weeklyCount}.`;
-        }
+        panelTitle.textContent = "🤝 RESPONSIBILITY (COMMUNITY)";
+        panelValue.textContent = `Categories today: ${coverageToday} of 3`;
+        panelSub.textContent = `Logs this week: ${weeklyCount}`;
       }
     }
 
     // =========================
-    // 8) RENDER CONTEXT (PILL + TEXT)
+    // 8) RENDER CONTEXT (STRENGTHENED MANIPULATION)
     // =========================
     function renderContext(condition) {
       const pill = document.getElementById("contextPill");
@@ -499,21 +429,23 @@
 
       if (condition === "competitive") {
         pill.className = "context-pill context-competitive";
-        pill.innerHTML = "🏆 Competitive Context";
-        text.textContent = "This version emphasises performance goals for your own consistency (no leaderboard).";
+        pill.innerHTML = "🏆 HIGH STANDARDS (PERSONAL)";
+        text.innerHTML = `This study version highlights <strong>high personal standards</strong> and striving for excellent performance in your sustainable actions.<br><br>
+        <em>Aim to meet your highest standard across the three categories (max one per category per day).</em>`;
         mainContainer.classList.add("competitive");
         mainContainer.classList.remove("duty");
       } else {
         pill.className = "context-pill context-duty";
-        pill.innerHTML = "🤝 Duty Context";
-        text.textContent = "This version emphasises shared responsibility and doing your part.";
+        pill.innerHTML = "🤝 RESPONSIBILITY (COMMUNITY)";
+        text.innerHTML = `This study version highlights <strong>responsibility and doing your part for the community</strong> through sustainable actions.<br><br>
+        <em>Do what you should do across the three categories (max one per category per day).</em>`;
         mainContainer.classList.add("duty");
         mainContainer.classList.remove("competitive");
       }
     }
 
     // =========================
-    // 9) BOOT STUDY (PID REGISTRY)
+    // 9) BOOT STUDY
     // =========================
     async function bootStudy() {
       Study.pid = getParam("pid");
@@ -527,7 +459,6 @@
       const cred = await signInAnonymously(auth);
       Study.uid = cred.user.uid;
 
-      // Registry must exist: pid_registry/{pid} with {condition:"competitive"|"duty"}
       const regRef = doc(db, "pid_registry", Study.pid);
       const regSnap = await getDoc(regRef);
       if (!regSnap.exists()) {
@@ -577,7 +508,7 @@
     }
 
     // =========================
-    // 10) LOGGING (ONE PER CATEGORY PER DAY)
+    // 10) LOGGING
     // =========================
     async function logSelectedHabit() {
       if (!selectedHabitId) {
@@ -591,8 +522,7 @@
       }
 
       const dayKey = localDayKey(new Date());
-      // Enforces one log per category per day
-      const logId = `${dayKey}_${habit.category}`;
+      const logId = `${dayKey}_${habit.category}`; // 1 per category per day
       const logRef = doc(db, "participants", Study.pid, "logs", logId);
 
       const existing = await getDoc(logRef);
@@ -638,7 +568,6 @@
       if (!pSnap.exists()) return;
       const pdata = pSnap.data();
 
-      // createdAt for week computations (fallback safe)
       Study.createdAtDate = pdata?.createdAt?.toDate ? pdata.createdAt.toDate() : (Study.createdAtDate || new Date());
 
       let week = 1;
@@ -763,16 +692,16 @@
           <div style="margin-bottom: 18px;">
             <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">1. Which statement best describes what you think this study emphasizes?</p>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="comparison" style="margin-right:8px;">
-              <span>🏆 Performing better than other participants</span>
+              <input type="radio" name="focus" value="standards" style="margin-right:8px;">
+              <span>🏆 Meeting high personal standards in my actions</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="duty" style="margin-right:8px;">
-              <span>🤝 Contributing to the collective good / community</span>
+              <input type="radio" name="focus" value="responsibility" style="margin-right:8px;">
+              <span>🤝 Doing my part / responsibility to the community or environment</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="personal" style="margin-right:8px;">
-              <span>📊 Just tracking my personal habits</span>
+              <input type="radio" name="focus" value="tracking" style="margin-right:8px;">
+              <span>📊 Just tracking my habits (no specific emphasis)</span>
             </label>
             <label style="display:block;">
               <input type="radio" name="focus" value="unsure" style="margin-right:8px;">
@@ -781,15 +710,15 @@
           </div>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. While using the tracker, how often did you think about how your actions compare to other participants?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. While using the tracker, how often did you think about meeting high personal standards in your actions?</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
               <span style="font-size:12px;">Never</span>
               <span style="font-size:12px;">Sometimes</span>
               <span style="font-size:12px;">Constantly</span>
             </div>
-            <input type="range" id="othersScale" min="1" max="7" value="4" style="width:100%;">
+            <input type="range" id="standardsScale" min="1" max="7" value="4" style="width:100%;">
             <div style="text-align:center; margin-top:5px;">
-              <span id="othersValue" style="font-weight:900; color:#004d40;">4</span>/7
+              <span id="standardsValue" style="font-weight:900; color:#004d40;">4</span>/7
             </div>
           </div>
 
@@ -819,8 +748,8 @@
 
       document.body.appendChild(modal);
 
-      document.getElementById('othersScale').addEventListener('input', (e) => {
-        document.getElementById('othersValue').textContent = e.target.value;
+      document.getElementById('standardsScale').addEventListener('input', (e) => {
+        document.getElementById('standardsValue').textContent = e.target.value;
       });
       document.getElementById('communityScale').addEventListener('input', (e) => {
         document.getElementById('communityValue').textContent = e.target.value;
@@ -831,7 +760,7 @@
 
     async function submitManipulationCheck() {
       const focus = document.querySelector('input[name="focus"]:checked')?.value;
-      const othersScale = Number(document.getElementById('othersScale').value);
+      const standardsScale = Number(document.getElementById('standardsScale').value);
       const communityScale = Number(document.getElementById('communityScale').value);
 
       if (!focus) {
@@ -843,7 +772,7 @@
         const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
         await setDoc(checkRef, {
           focus,
-          othersScale,
+          standardsScale,
           communityScale,
           condition: Study.condition,
           completedAtISO: new Date().toISOString(),
