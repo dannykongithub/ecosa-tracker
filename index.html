@@ -8,16 +8,16 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
     body { background: linear-gradient(135deg, #1a5f4b 0%, #2e8b57 100%); min-height: 100vh; padding: 15px; }
-    .container {
-      max-width: 520px; margin: 0 auto; background: white; border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; transition: all 0.25s ease;
-    }
 
-    /* Condition themes (subtle; avoid “deception”) */
-    .container.competitive .log-button { background: #c4450c; }
-    .container.competitive .log-button:hover { background: #a3380a; }
-    .container.competitive .context-pill { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
-    .container.duty .context-pill { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
 
     .header { background: linear-gradient(135deg, #004d40, #1e4d3b); color: white; padding: 22px 18px 18px; text-align: center; position: relative; }
     .flag-badge { position: absolute; top: 14px; right: 14px; background: #ffb300; color: #004d40; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
@@ -29,11 +29,11 @@
     .week-indicator { text-align: center; margin-bottom: 12px; }
     .week-badge { background: #004d40; color: white; padding: 8px 18px; border-radius: 30px; font-weight: 800; display: inline-block; font-size: 13px; }
     .progress-bar { height: 10px; background: #d4e8dd; border-radius: 10px; overflow: hidden; margin: 12px 0 14px; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, #004d40, #2e8b57); width: 0%; transition: width 0.3s ease; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #004d40, #2e8b57); width: 0%; transition: width 0.25s ease; }
 
     .stats { display: flex; justify-content: space-around; text-align: center; background: white; padding: 14px 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,77,64,0.1); }
     .stat-item { flex: 1; }
-    .stat-number { font-size: 24px; font-weight: 900; color: #004d40; }
+    .stat-number { font-size: 24px; font-weight: 900; color: #004d40; transition: color 0.25s ease; }
     .stat-label { font-size: 10px; color: #5e7a6b; text-transform: uppercase; letter-spacing: 0.6px; }
 
     .actions-section { padding: 18px; }
@@ -44,27 +44,44 @@
     .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; }
 
     .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 900; font-size: 12px; margin-bottom: 10px; }
-    .context-panel {
-      margin-top: 10px; background: white; border: 1px solid #d4e8dd; border-radius: 14px;
-      padding: 12px; box-shadow: 0 2px 10px rgba(0,77,64,0.06);
-    }
-    .context-panel-title { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; color: #004d40; opacity: 0.85; }
-    .context-panel-value { font-size: 18px; font-weight: 950; color: #004d40; margin-top: 6px; }
-    .context-panel-sub { font-size: 12px; color: #5e7a6b; margin-top: 4px; }
+    .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
+    .context-duty { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
 
     .habit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
     .habit-card {
-      background: #f5f9f7; border-radius: 16px; padding: 14px 10px 12px; text-align: center;
-      cursor: pointer; transition: all 0.15s ease; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,77,64,0.1);
+      background: #f5f9f7;
+      border-radius: 16px;
+      padding: 14px 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,77,64,0.1);
+      position: relative;
+      user-select: none;
     }
-    .habit-card.selected { background: #e0f2e9; border-color: #004d40; transform: scale(0.99); box-shadow: 0 4px 12px rgba(0,77,64,0.2); }
+    .habit-card:hover { transform: scale(0.99); }
+    .habit-card.selected {
+      background: #e0f2e9;
+      border-color: #004d40;
+      transform: scale(0.99);
+      box-shadow: 0 4px 12px rgba(0,77,64,0.2);
+    }
     .habit-emoji { font-size: 26px; margin-bottom: 8px; }
     .habit-name { font-size: 12px; font-weight: 900; color: #004d40; line-height: 1.25; min-height: 36px; }
-    .habit-category { font-size: 10px; font-weight: 950; letter-spacing: 0.6px; margin-top: 7px; opacity: 0.65; color: #004d40; }
+    .habit-category { font-size: 10px; font-weight: 900; letter-spacing: 0.6px; margin-top: 7px; opacity: 0.65; color: #004d40; }
 
     .log-button {
-      background: #004d40; color: white; border: none; width: 100%; padding: 16px; border-radius: 16px;
-      font-size: 15px; font-weight: 950; cursor: pointer; transition: transform 0.12s ease, opacity 0.2s ease, background 0.2s ease;
+      background: #004d40;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.2s ease, background 0.25s ease;
       box-shadow: 0 4px 12px rgba(0,77,64,0.3);
     }
     .log-button:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
@@ -74,18 +91,31 @@
     .history-item { display: flex; align-items: center; padding: 12px; background: white; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,77,64,0.05); border: 1px solid #e0f2e9; }
     .history-emoji { font-size: 22px; margin-right: 12px; width: 44px; height: 44px; background: #f5f9f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .history-details { flex: 1; }
-    .history-name { font-weight: 950; color: #004d40; font-size: 13px; }
+    .history-name { font-weight: 900; color: #004d40; font-size: 13px; }
     .history-time { font-size: 11px; color: #5e7a6b; margin-top: 4px; }
-    .history-tag { font-size: 10px; font-weight: 950; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
+    .history-tag { font-size: 10px; font-weight: 900; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
     .empty-state { text-align: center; padding: 24px 14px; color: #5e7a6b; background: white; border-radius: 16px; font-size: 13px; }
-
     .footer-note { text-align: center; padding: 14px; background: #f5f9f7; font-size: 11px; color: #5e7a6b; border-top: 1px solid #d4e8dd; }
 
     .notification {
-      position: fixed; bottom: 18px; left: 18px; right: 18px; max-width: 520px; margin: 0 auto;
-      background: #004d40; color: white; padding: 14px; border-radius: 16px; text-align: center; display: none;
-      z-index: 1000; font-weight: 950; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      position: fixed;
+      bottom: 18px;
+      left: 18px;
+      right: 18px;
+      max-width: 520px;
+      margin: 0 auto;
+      background: #004d40;
+      color: white;
+      padding: 14px;
+      border-radius: 16px;
+      text-align: center;
+      display: none;
+      z-index: 1000;
+      font-weight: 900;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      animation: slideUp 0.25s ease;
     }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 
@@ -124,20 +154,12 @@
     <div class="actions-section">
       <div class="section-title"><span>🌱</span> Today’s Actions</div>
 
-      <div class="tips-card">
+      <div class="tips-card" id="tipsCard">
         <div id="contextPill" class="context-pill" style="display:none;"></div>
         <p id="contextText">Loading study context…</p>
-
-        <div class="context-panel" id="contextPanel" style="display:none;">
-          <div class="context-panel-title" id="panelTitle">—</div>
-          <div class="context-panel-value" id="panelValue">—</div>
-          <div class="context-panel-sub" id="panelSub">—</div>
-        </div>
-
         <div class="rule-text">
           Rule: You may log up to one action in each category per day (PURCHASE, CIRCULARITY, RESOURCE).
           If you completed multiple actions within a category, log only the most effortful one.
-          Logging resets at midnight local time.
         </div>
       </div>
 
@@ -166,13 +188,11 @@
       getFirestore,
       doc, getDoc, setDoc, runTransaction,
       collection, query, orderBy, limit, getDocs,
-      serverTimestamp,
-      where
+      serverTimestamp, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    import { getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // =========================
-    // 1) FIREBASE CONFIG (yours)
+    // 1) FIREBASE CONFIG
     // =========================
     const firebaseConfig = {
       apiKey: "AIzaSyCNCfnvq8R8ImxVzxZkNZss8grgfkZE-l8",
@@ -185,21 +205,21 @@
     };
 
     // =========================
-    // 2) HABITS (your 8 + public option)
+    // 2) HABITS (LOCKED)
     // =========================
     const habits = [
-      // PURCHASE
+      // Purchase-stage
       { id: 1, name: "Refused Products with Excessive Packaging", emoji: "📦❌", category: "purchase" },
       { id: 2, name: "Avoided Unnecessary Purchases", emoji: "💭🚫", category: "purchase" },
       { id: 3, name: "Used Reusable Shopping Bags", emoji: "🛍️", category: "purchase" },
       { id: 9, name: "Chose a More Environmentally Sustainable Option in a Public Setting", emoji: "🌱🏪", category: "purchase" },
 
-      // CIRCULARITY
+      // Circularity
       { id: 4, name: "Donated or Gave Away Unused Items", emoji: "🎁", category: "circularity" },
       { id: 5, name: "Separated Glass, Plastic, and Paper for Recycling", emoji: "♻️", category: "circularity" },
       { id: 8, name: "Repaired Broken Items Instead of Buying New", emoji: "🔧", category: "circularity" },
 
-      // RESOURCE
+      // Resource
       { id: 6, name: "Reduced Water Usage", emoji: "💧", category: "resource" },
       { id: 7, name: "Switched Off Geyser When Not Needed", emoji: "⚡", category: "resource" }
     ];
@@ -207,7 +227,7 @@
     // =========================
     // 3) STATE
     // =========================
-    const Study = { pid: null, uid: null, condition: null, createdAtDate: null };
+    const Study = { pid: null, uid: null, condition: null, createdAtISO: null };
     let selectedHabitId = null;
 
     // =========================
@@ -225,9 +245,8 @@
       return `${y}-${m}-${day}`;
     }
 
-    function computeWeek(createdAtDate) {
-      if (!createdAtDate) return 1;
-      const start = createdAtDate;
+    function computeWeekFromCreatedAtISO(createdAtISO) {
+      const start = new Date(createdAtISO);
       const now = new Date();
       const ms = now - start;
       const days = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -247,6 +266,25 @@
       if (cat === "circularity") return "CIRCULARITY";
       if (cat === "resource") return "RESOURCE";
       return String(cat || "").toUpperCase();
+    }
+
+    function contextMessage(condition) {
+      if (condition === "competitive") {
+        const msgs = [
+          "Focus: stay consistent. Try to beat your own streak.",
+          "Keep pace with your plan. Consistency is performance.",
+          "Small wins daily. Protect your streak.",
+          "Aim for a strong week: log at least 5 days."
+        ];
+        return msgs[Math.floor(Math.random() * msgs.length)];
+      }
+      const msgs = [
+        "Your action contributes to shared environmental outcomes.",
+        "Doing your part matters. Thank you for contributing.",
+        "Small daily actions add up for the community.",
+        "Consistency helps build collective impact."
+      ];
+      return msgs[Math.floor(Math.random() * msgs.length)];
     }
 
     // =========================
@@ -280,90 +318,24 @@
       });
     }
 
-    // =========================
-    // 7) CONTEXT RENDER
-    // =========================
-    function applyConditionTheme(condition) {
-      const c = document.getElementById("mainContainer");
-      c.classList.remove("competitive", "duty");
-      c.classList.add(condition);
-    }
-
     function renderContext(condition) {
       const pill = document.getElementById("contextPill");
       const text = document.getElementById("contextText");
-      const panel = document.getElementById("contextPanel");
-      const panelTitle = document.getElementById("panelTitle");
-
       pill.style.display = "inline-flex";
-      panel.style.display = "block";
 
       if (condition === "competitive") {
-        pill.textContent = "🏆 Competitive Context";
-        text.textContent = "This version emphasises performance relative to other participants.";
-        panelTitle.textContent = "🏆 YOUR PERFORMANCE (BASED ON TOTAL LOGS)";
+        pill.className = "context-pill context-competitive";
+        pill.innerHTML = "🏆 Competitive Context";
+        text.textContent = "This version emphasises personal performance and consistency over time.";
       } else {
-        pill.textContent = "🤝 Duty Context";
+        pill.className = "context-pill context-duty";
+        pill.innerHTML = "🤝 Duty Context";
         text.textContent = "This version emphasises shared responsibility and doing your part.";
-        panelTitle.textContent = "🤝 COMMUNITY IMPACT (BASED ON TOTAL LOGS)";
-      }
-
-      applyConditionTheme(condition);
-    }
-
-    // =========================
-    // 8) CONTEXT PANEL METRICS (scalable)
-    // =========================
-    async function updateContextPanel(totalLogs) {
-      const panelValue = document.getElementById("panelValue");
-      const panelSub = document.getElementById("panelSub");
-
-      const participantsCol = collection(db, "participants");
-
-      // Total participants (count aggregation)
-      const totalSnap = await getCountFromServer(query(participantsCol));
-      const totalParticipants = totalSnap.data().count || 0;
-
-      if (Study.condition === "competitive") {
-        // Count how many participants have MORE logs than this participant
-        const higherQ = query(participantsCol, where("totalLogs", ">", totalLogs));
-        const higherSnap = await getCountFromServer(higherQ);
-        const higherCount = higherSnap.data().count || 0;
-
-        if (totalParticipants <= 0) {
-          panelValue.textContent = "—";
-          panelSub.textContent = "—";
-          return;
-        }
-
-        // Rank position (1 = best). Percentile = (rank/total)*100.
-        const rank = higherCount + 1;
-        const percentile = Math.max(1, Math.min(100, Math.round((rank / totalParticipants) * 100)));
-
-        panelValue.textContent = `Top ${percentile}% (rank ${rank} of ${totalParticipants})`;
-        panelSub.textContent = "This is computed from total logs only (no identities, no usernames).";
-      } else {
-        // Community total logs (count logs across participants is expensive).
-        // Robust approach: keep a global counter doc incremented in transaction.
-        // If you do not create it, we fall back to showing participant-only stats.
-        const counterRef = doc(db, "stats", "global");
-        const counterSnap = await getDoc(counterRef);
-
-        if (counterSnap.exists()) {
-          const g = counterSnap.data();
-          const globalLogs = Number(g?.totalLogs || 0);
-          panelValue.textContent = `${globalLogs.toLocaleString()} total actions`;
-          const pct = globalLogs > 0 ? Math.round((totalLogs / globalLogs) * 100) : 0;
-          panelSub.textContent = `Your contribution: ${totalLogs} (${pct}%).`;
-        } else {
-          panelValue.textContent = `${totalLogs} actions logged`;
-          panelSub.textContent = "Global totals not enabled yet (optional).";
-        }
       }
     }
 
     // =========================
-    // 9) BOOT STUDY (PID registry locks condition)
+    // 7) BOOT STUDY (PID REGISTRY LOCKED)
     // =========================
     async function bootStudy() {
       Study.pid = getParam("pid");
@@ -377,7 +349,7 @@
       const cred = await signInAnonymously(auth);
       Study.uid = cred.user.uid;
 
-      // PID registry required
+      // Validate PID exists and carries condition
       const regRef = doc(db, "pid_registry", Study.pid);
       const regSnap = await getDoc(regRef);
       if (!regSnap.exists()) {
@@ -386,60 +358,64 @@
         return;
       }
       const reg = regSnap.data();
-      const condition = reg?.condition;
-      if (condition !== "competitive" && condition !== "duty") {
+      const registryCondition = reg?.condition;
+      if (registryCondition !== "competitive" && registryCondition !== "duty") {
         showNotification("PID registry misconfigured. Contact the study team.", "err");
         document.getElementById("contextText").textContent = "Registry entry missing/invalid condition.";
         return;
       }
 
-      // Create/claim participant doc
       const pRef = doc(db, "participants", Study.pid);
+
       await runTransaction(db, async (tx) => {
         const pSnap = await tx.get(pRef);
 
         if (!pSnap.exists()) {
+          const createdAtISO = new Date().toISOString();
           tx.set(pRef, {
             uid: Study.uid,
-            condition,
+            condition: registryCondition,
+            createdAtISO,
             totalLogs: 0,
             activeDays: 0,
-            streakDays: 0,
-            lastActiveDayKey: null,
+            lastDayKey: null,
             createdAt: serverTimestamp()
           });
+          Study.condition = registryCondition;
+          Study.createdAtISO = createdAtISO;
           return;
         }
 
-        const p = pSnap.data();
-        if (p?.uid && p.uid !== Study.uid) {
+        const pdata = pSnap.data();
+
+        if (pdata?.uid && pdata.uid !== Study.uid) {
           throw new Error("This PID has already been used on another device. Contact the study team.");
         }
-        if (p?.condition !== condition) {
+
+        if (pdata?.condition !== registryCondition) {
           throw new Error("Condition mismatch detected. Contact the study team.");
         }
-        if (!p?.uid) {
+
+        if (!pdata?.uid) {
           tx.update(pRef, { uid: Study.uid });
         }
-      });
 
-      // Read participant to get createdAt for week computation
-      const pSnap2 = await getDoc(pRef);
-      const p2 = pSnap2.data();
-      Study.condition = p2.condition;
-      Study.createdAtDate = p2?.createdAt?.toDate ? p2.createdAt.toDate() : null;
+        Study.condition = pdata.condition;
+        Study.createdAtISO = pdata.createdAtISO || new Date().toISOString();
+      });
 
       renderContext(Study.condition);
       renderHabits();
       wireLogButton();
+
       await refreshUIFromServer();
 
-      // Trigger manipulation check after 3 active days
+      // Manip check after 3 active days
       setTimeout(checkManipulationTiming, 2000);
     }
 
     // =========================
-    // 10) LOGGING (transaction hardened)
+    // 8) LOGGING (TRANSACTION + DAY DOC)
     // =========================
     async function logSelectedHabit() {
       if (!selectedHabitId) {
@@ -454,35 +430,29 @@
       }
 
       const dayKey = localDayKey(new Date());
-
-      // One per category per day (enforced by deterministic doc id)
-      const logId = `${dayKey}_${habit.category}`;
+      const logId = `${dayKey}_${habit.category}`; // 1 per category per day (LOCKED)
+      const pRef = doc(db, "participants", Study.pid);
+      const dayRef = doc(db, "participants", Study.pid, "days", dayKey);
       const logRef = doc(db, "participants", Study.pid, "logs", logId);
 
-      // Day doc (for activeDays + streak, independent of category)
-      const dayRef = doc(db, "participants", Study.pid, "days", dayKey);
-
-      const pRef = doc(db, "participants", Study.pid);
-
-      // Optional global counter (only used in duty panel; safe to enable for both)
-      const globalRef = doc(db, "stats", "global");
-
       await runTransaction(db, async (tx) => {
-        const [pSnap, logSnap, daySnap, gSnap] = await Promise.all([
-          tx.get(pRef),
-          tx.get(logRef),
-          tx.get(dayRef),
-          tx.get(globalRef)
-        ]);
-
+        const pSnap = await tx.get(pRef);
         if (!pSnap.exists()) throw new Error("Participant record missing.");
+
         const p = pSnap.data();
 
-        if (logSnap.exists()) {
+        // Enforce UID ownership
+        if (p?.uid && p.uid !== Study.uid) {
+          throw new Error("This PID is already claimed on another device.");
+        }
+
+        // Enforce category/day uniqueness
+        const existingLog = await tx.get(logRef);
+        if (existingLog.exists()) {
           throw new Error(`Already logged one ${prettyCategory(habit.category)} action today.`);
         }
 
-        // Create the category log (create-only)
+        // Create log (create-only)
         tx.set(logRef, {
           habitId: habit.id,
           category: habit.category,
@@ -491,51 +461,41 @@
           serverTime: serverTimestamp()
         });
 
-        // If first log of the day, create day doc and update activeDays + streak
-        let activeDays = Number(p.activeDays || 0);
-        let streakDays = Number(p.streakDays || 0);
-        const last = p.lastActiveDayKey;
-
+        // Upsert day doc (tracks whether day is active)
+        const daySnap = await tx.get(dayRef);
         if (!daySnap.exists()) {
-          tx.set(dayRef, { dayKey, createdAt: serverTimestamp() });
-          activeDays += 1;
-
-          // Streak logic (local-day key arithmetic)
-          if (!last) {
-            streakDays = 1;
-          } else {
-            const lastDate = new Date(last + "T00:00:00");
-            const todayDate = new Date(dayKey + "T00:00:00");
-            const diffDays = Math.round((todayDate - lastDate) / (1000 * 60 * 60 * 24));
-            if (diffDays === 1) streakDays += 1;
-            else if (diffDays === 0) { /* same day */ }
-            else streakDays = 1;
-          }
-
+          tx.set(dayRef, {
+            dayKey,
+            firstLogAt: serverTimestamp(),
+            categories: { [habit.category]: true }
+          });
           tx.update(pRef, {
-            activeDays,
-            streakDays,
-            lastActiveDayKey: dayKey
+            totalLogs: increment(1),
+            activeDays: increment(1),
+            lastDayKey: dayKey
           });
-        }
-
-        // totalLogs increments every successful category log
-        const totalLogs = Number(p.totalLogs || 0) + 1;
-        tx.update(pRef, { totalLogs });
-
-        // Optional: keep a global total (create doc if missing)
-        if (!gSnap.exists()) {
-          tx.set(globalRef, { totalLogs: 1, updatedAt: serverTimestamp() });
         } else {
-          const g = gSnap.data();
-          tx.update(globalRef, {
-            totalLogs: Number(g.totalLogs || 0) + 1,
-            updatedAt: serverTimestamp()
-          });
+          // Day exists: may add category, but activeDays should not increment
+          const d = daySnap.data();
+          const categories = d?.categories || {};
+          categories[habit.category] = true;
+          tx.update(dayRef, { categories });
+          tx.update(pRef, { totalLogs: increment(1), lastDayKey: dayKey });
         }
+
+        // Lightweight behaviour tracking: log hour + category (optional)
+        const bRef = doc(collection(db, "participants", Study.pid, "behavior"));
+        tx.set(bRef, {
+          type: "log_meta",
+          dayKey,
+          hour: new Date().getHours(),
+          category: habit.category,
+          createdAtISO: new Date().toISOString(),
+          serverTime: serverTimestamp()
+        });
       });
 
-      showNotification("Action recorded.");
+      showNotification(contextMessage(Study.condition), "ok");
       await refreshUIFromServer();
     }
 
@@ -554,30 +514,41 @@
     }
 
     // =========================
-    // 11) REFRESH UI (no full scans required)
+    // 9) REFRESH UI (FAST: participant doc + days subset)
     // =========================
     async function refreshUIFromServer() {
       const pRef = doc(db, "participants", Study.pid);
       const pSnap = await getDoc(pRef);
       if (!pSnap.exists()) return;
-      const p = pSnap.data();
 
-      const createdAtDate = p?.createdAt?.toDate ? p.createdAt.toDate() : Study.createdAtDate;
-      const week = computeWeek(createdAtDate);
+      const p = pSnap.data();
+      Study.condition = p.condition;
+      Study.createdAtISO = p.createdAtISO || Study.createdAtISO;
+
+      const week = computeWeekFromCreatedAtISO(Study.createdAtISO);
       document.getElementById("weekDisplay").textContent = `Week ${week} of 8`;
       document.getElementById("progressFill").style.width = `${(week / 8) * 100}%`;
 
-      const totalLogs = Number(p.totalLogs || 0);
-      const activeDays = Number(p.activeDays || 0);
-      const streakDays = Number(p.streakDays || 0);
+      document.getElementById("totalLogs").textContent = String(p.totalLogs || 0);
+      document.getElementById("activeDays").textContent = String(p.activeDays || 0);
 
-      document.getElementById("totalLogs").textContent = String(totalLogs);
-      document.getElementById("activeDays").textContent = String(activeDays);
-      document.getElementById("streakDays").textContent = String(streakDays);
+      // Streak: walk backward over days docs (max 56 checks, but reads are cheap and bounded)
+      const daysCol = collection(db, "participants", Study.pid, "days");
+      const daysSnap = await getDocs(query(daysCol, orderBy("dayKey", "desc"), limit(56)));
+      const daysSet = new Set();
+      daysSnap.forEach(d => { const v = d.data(); if (v?.dayKey) daysSet.add(v.dayKey); });
 
-      await updateContextPanel(totalLogs);
+      let streak = 0;
+      const cursor = new Date();
+      cursor.setHours(0,0,0,0);
+      while (true) {
+        const k = localDayKey(cursor);
+        if (daysSet.has(k)) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
+        else break;
+      }
+      document.getElementById("streakDays").textContent = String(streak);
 
-      // Recent logs (small query)
+      // Recent logs
       const logsCol = collection(db, "participants", Study.pid, "logs");
       const recentQ = query(logsCol, orderBy("serverTime", "desc"), limit(10));
       const recentSnap = await getDocs(recentQ);
@@ -592,7 +563,6 @@
         historyList.innerHTML = `<div class="empty-state">No logs yet. Select an action you completed today and log it.</div>`;
         return;
       }
-
       historyList.innerHTML = "";
       logs.forEach(x => {
         const habit = habits.find(h => h.id === x.habitId);
@@ -611,25 +581,26 @@
     }
 
     // =========================
-    // 12) MANIPULATION CHECK (after 3 active days; once)
+    // 10) MANIPULATION CHECK (AFTER 3 ACTIVE DAYS)
     // =========================
     async function checkManipulationTiming() {
+      if (!Study.pid) return;
+
       try {
         const pRef = doc(db, "participants", Study.pid);
         const pSnap = await getDoc(pRef);
         if (!pSnap.exists()) return;
         const p = pSnap.data();
-
         const activeDays = Number(p.activeDays || 0);
-        if (activeDays < 3) return;
 
         const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
         const checkSnap = await getDoc(checkRef);
-        if (checkSnap.exists()) return;
 
-        showManipulationCheckModal();
+        if (activeDays >= 3 && !checkSnap.exists()) {
+          setTimeout(() => showManipulationCheckModal(), 600);
+        }
       } catch (e) {
-        // silent
+        console.log("Manipulation timing check error:", e);
       }
     }
 
@@ -655,51 +626,53 @@
             <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">1. Which statement best describes what you think this study emphasises?</p>
             <label style="display:block; margin-bottom:8px;">
               <input type="radio" name="focus" value="comparison" style="margin-right:8px;">
-              <span>🏆 Performing better than other participants</span>
+              <span>Performing better than others</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
               <input type="radio" name="focus" value="duty" style="margin-right:8px;">
-              <span>🤝 Contributing to the collective good / community</span>
+              <span>Doing my part for the community/environment</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
               <input type="radio" name="focus" value="personal" style="margin-right:8px;">
-              <span>📊 Tracking my personal habits</span>
+              <span>Tracking my own habits</span>
             </label>
             <label style="display:block;">
               <input type="radio" name="focus" value="unsure" style="margin-right:8px;">
-              <span>❓ Not sure</span>
+              <span>Not sure / didn't notice</span>
             </label>
           </div>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. How often did you think about how your actions compare to other participants?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. While using the tracker, how often did you think about how your actions compare to other participants?</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span><span style="font-size:12px;">Constantly</span>
+              <span style="font-size:12px;">Never</span>
+              <span style="font-size:12px;">Constantly</span>
             </div>
             <input type="range" id="othersScale" min="1" max="7" value="4" style="width:100%;">
             <div style="text-align:center; margin-top:5px;">
-              <span id="othersValue" style="font-weight:950; color:#004d40;">4</span>/7
+              <span id="othersValue" style="font-weight:900; color:#004d40;">4</span>/7
             </div>
           </div>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">3. How often did you feel a sense of responsibility to do your part for the community/environment?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">3. While using the tracker, how often did you feel a sense of responsibility to do your part for the community/environment?</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span><span style="font-size:12px;">Constantly</span>
+              <span style="font-size:12px;">Never</span>
+              <span style="font-size:12px;">Constantly</span>
             </div>
             <input type="range" id="communityScale" min="1" max="7" value="4" style="width:100%;">
             <div style="text-align:center; margin-top:5px;">
-              <span id="communityValue" style="font-weight:950; color:#004d40;">4</span>/7
+              <span id="communityValue" style="font-weight:900; color:#004d40;">4</span>/7
             </div>
           </div>
 
           <button id="submitMC" style="
             background:#004d40; color:white; border:none; padding:14px;
-            border-radius:12px; width:100%; font-size:16px; font-weight:950; cursor:pointer;
+            border-radius:12px; width:100%; font-size:16px; font-weight:900; cursor:pointer;
           ">Submit</button>
 
           <p style="text-align:center; margin-top:12px; font-size:12px; color:#999;">
-            Your responses help ensure research quality.
+            Your responses help ensure the quality of our research.
           </p>
         </div>
       `;
@@ -712,7 +685,6 @@
       document.getElementById('communityScale').addEventListener('input', (e) => {
         document.getElementById('communityValue').textContent = e.target.value;
       });
-
       document.getElementById('submitMC').addEventListener('click', submitManipulationCheck);
     }
 
@@ -733,9 +705,8 @@
           completedAtISO: new Date().toISOString(),
           dayKey: localDayKey()
         });
-
-        document.getElementById('manipulationModal').remove();
-        showNotification("✅ Thank you for your feedback!");
+        document.getElementById('manipulationModal')?.remove();
+        showNotification("Thank you. Your responses were saved.", "ok");
       } catch (e) {
         showNotification("Error saving responses.", "err");
       }
