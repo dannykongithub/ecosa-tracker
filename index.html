@@ -6,7 +6,7 @@
   <title>EcoSA Study Tracker</title>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; }
     body { background: linear-gradient(135deg, #1a5f4b 0%, #2e8b57 100%); min-height: 100vh; padding: 15px; }
 
     .container {
@@ -40,12 +40,24 @@
     .section-title { color: #004d40; font-size: 17px; margin-bottom: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
 
     .tips-card { background: #e8f4f0; padding: 14px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid #004d40; }
-    .tips-card p { color: #004d40; font-size: 13px; }
-    .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; }
+    .tips-card p { color: #004d40; font-size: 13px; line-height: 1.35; }
+    .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; line-height: 1.35; }
 
     .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 900; font-size: 12px; margin-bottom: 10px; }
     .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
     .context-duty { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
+
+    .context-panel {
+      margin-top: 10px;
+      background: white;
+      border: 1px solid #d4e8dd;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 2px 10px rgba(0,77,64,0.06);
+    }
+    .context-panel-title { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; color: #004d40; opacity: 0.85; }
+    .context-panel-value { font-size: 20px; font-weight: 950; color: #004d40; margin-top: 6px; }
+    .context-panel-sub { font-size: 12px; color: #5e7a6b; margin-top: 4px; line-height: 1.35; }
 
     .habit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
     .habit-card {
@@ -94,8 +106,8 @@
     .history-name { font-weight: 900; color: #004d40; font-size: 13px; }
     .history-time { font-size: 11px; color: #5e7a6b; margin-top: 4px; }
     .history-tag { font-size: 10px; font-weight: 900; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
-    .empty-state { text-align: center; padding: 24px 14px; color: #5e7a6b; background: white; border-radius: 16px; font-size: 13px; }
-    .footer-note { text-align: center; padding: 14px; background: #f5f9f7; font-size: 11px; color: #5e7a6b; border-top: 1px solid #d4e8dd; }
+    .empty-state { text-align: center; padding: 24px 14px; color: #5e7a6b; background: white; border-radius: 16px; font-size: 13px; line-height: 1.35; }
+    .footer-note { text-align: center; padding: 14px; background: #f5f9f7; font-size: 11px; color: #5e7a6b; border-top: 1px solid #d4e8dd; line-height: 1.35; }
 
     .notification {
       position: fixed;
@@ -113,9 +125,7 @@
       z-index: 1000;
       font-weight: 900;
       box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      animation: slideUp 0.25s ease;
     }
-    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 
@@ -157,6 +167,13 @@
       <div class="tips-card" id="tipsCard">
         <div id="contextPill" class="context-pill" style="display:none;"></div>
         <p id="contextText">Loading study context…</p>
+
+        <div class="context-panel" id="contextPanel" style="display:none;">
+          <div class="context-panel-title" id="panelTitle">—</div>
+          <div class="context-panel-value" id="panelValue">—</div>
+          <div class="context-panel-sub" id="panelSub">—</div>
+        </div>
+
         <div class="rule-text">
           Rule: You may log up to one action in each category per day (PURCHASE, CIRCULARITY, RESOURCE).
           If you completed multiple actions within a category, log only the most effortful one.
@@ -176,6 +193,7 @@
 
     <div class="footer-note">
       Study mode: no reset, no sharing, no local editing. Records are create-only and stored securely.
+      If you change devices, contact the study team.
     </div>
   </div>
 
@@ -192,7 +210,7 @@
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // =========================
-    // 1) FIREBASE CONFIG
+    // 1) FIREBASE CONFIG (USE YOUR ACTUAL VALUES)
     // =========================
     const firebaseConfig = {
       apiKey: "AIzaSyCNCfnvq8R8ImxVzxZkNZss8grgfkZE-l8",
@@ -208,18 +226,15 @@
     // 2) HABITS (LOCKED)
     // =========================
     const habits = [
-      // Purchase-stage
       { id: 1, name: "Refused Products with Excessive Packaging", emoji: "📦❌", category: "purchase" },
       { id: 2, name: "Avoided Unnecessary Purchases", emoji: "💭🚫", category: "purchase" },
       { id: 3, name: "Used Reusable Shopping Bags", emoji: "🛍️", category: "purchase" },
       { id: 9, name: "Chose a More Environmentally Sustainable Option in a Public Setting", emoji: "🌱🏪", category: "purchase" },
 
-      // Circularity
       { id: 4, name: "Donated or Gave Away Unused Items", emoji: "🎁", category: "circularity" },
       { id: 5, name: "Separated Glass, Plastic, and Paper for Recycling", emoji: "♻️", category: "circularity" },
       { id: 8, name: "Repaired Broken Items Instead of Buying New", emoji: "🔧", category: "circularity" },
 
-      // Resource
       { id: 6, name: "Reduced Water Usage", emoji: "💧", category: "resource" },
       { id: 7, name: "Switched Off Geyser When Not Needed", emoji: "⚡", category: "resource" }
     ];
@@ -227,7 +242,12 @@
     // =========================
     // 3) STATE
     // =========================
-    const Study = { pid: null, uid: null, condition: null, createdAtISO: null };
+    const Study = {
+      pid: null,
+      uid: null,
+      condition: null,
+      studyStartISO: null
+    };
     let selectedHabitId = null;
 
     // =========================
@@ -245,12 +265,19 @@
       return `${y}-${m}-${day}`;
     }
 
-    function computeWeekFromCreatedAtISO(createdAtISO) {
-      const start = new Date(createdAtISO);
+    function computeWeek(studyStartISO) {
+      const start = new Date(studyStartISO);
       const now = new Date();
       const ms = now - start;
       const days = Math.floor(ms / (1000 * 60 * 60 * 24));
       return Math.min(8, Math.max(1, Math.floor(days / 7) + 1));
+    }
+
+    function prettyCategory(cat) {
+      if (cat === "purchase") return "PURCHASE";
+      if (cat === "circularity") return "CIRCULARITY";
+      if (cat === "resource") return "RESOURCE";
+      return String(cat || "").toUpperCase();
     }
 
     function showNotification(message, type = "ok") {
@@ -261,20 +288,13 @@
       setTimeout(() => { el.style.display = "none"; }, 3200);
     }
 
-    function prettyCategory(cat) {
-      if (cat === "purchase") return "PURCHASE";
-      if (cat === "circularity") return "CIRCULARITY";
-      if (cat === "resource") return "RESOURCE";
-      return String(cat || "").toUpperCase();
-    }
-
     function contextMessage(condition) {
       if (condition === "competitive") {
         const msgs = [
-          "Focus: stay consistent. Try to beat your own streak.",
-          "Keep pace with your plan. Consistency is performance.",
-          "Small wins daily. Protect your streak.",
-          "Aim for a strong week: log at least 5 days."
+          "Focus: stay consistent. Protect your streak.",
+          "Consistency is performance. Log again tomorrow.",
+          "Small wins daily. Keep the streak alive.",
+          "Aim for a strong week. Try to log most days."
         ];
         return msgs[Math.floor(Math.random() * msgs.length)];
       }
@@ -295,7 +315,7 @@
     const db = getFirestore(app);
 
     // =========================
-    // 6) RENDER HABITS
+    // 6) UI RENDER
     // =========================
     function renderHabits() {
       const grid = document.getElementById("habitGrid");
@@ -318,24 +338,46 @@
       });
     }
 
-    function renderContext(condition) {
+    function setContextUI(condition) {
       const pill = document.getElementById("contextPill");
       const text = document.getElementById("contextText");
+      const panel = document.getElementById("contextPanel");
+      const panelTitle = document.getElementById("panelTitle");
+
       pill.style.display = "inline-flex";
+      panel.style.display = "block";
 
       if (condition === "competitive") {
         pill.className = "context-pill context-competitive";
         pill.innerHTML = "🏆 Competitive Context";
         text.textContent = "This version emphasises personal performance and consistency over time.";
+        panelTitle.textContent = "🏆 YOUR PERFORMANCE (SELF-BENCHMARK)";
       } else {
         pill.className = "context-pill context-duty";
         pill.innerHTML = "🤝 Duty Context";
         text.textContent = "This version emphasises shared responsibility and doing your part.";
+        panelTitle.textContent = "🤝 YOUR CONTRIBUTION (YOUR PART)";
+      }
+    }
+
+    function updateContextPanelUI({ condition, totalLogs, activeDays, streak, week }) {
+      const panelValue = document.getElementById("panelValue");
+      const panelSub = document.getElementById("panelSub");
+
+      if (condition === "competitive") {
+        // Self-benchmark: % active days so far in the study window elapsed
+        const daysSoFar = Math.min(56, week * 7);
+        const consistency = Math.min(100, Math.round((activeDays / Math.max(1, daysSoFar)) * 100));
+        panelValue.textContent = `Consistency: ${consistency}%`;
+        panelSub.textContent = `Streak: ${streak} day(s). Active days: ${activeDays}. Total logs: ${totalLogs}.`;
+      } else {
+        panelValue.textContent = `Your logs: ${totalLogs}`;
+        panelSub.textContent = `Active days: ${activeDays}. Streak: ${streak} day(s). Keep logging consistently.`;
       }
     }
 
     // =========================
-    // 7) BOOT STUDY (PID REGISTRY LOCKED)
+    // 7) BOOT STUDY (PID REGISTRY + CLAIM)
     // =========================
     async function bootStudy() {
       Study.pid = getParam("pid");
@@ -349,7 +391,7 @@
       const cred = await signInAnonymously(auth);
       Study.uid = cred.user.uid;
 
-      // Validate PID exists and carries condition
+      // Validate PID exists and has assigned condition
       const regRef = doc(db, "pid_registry", Study.pid);
       const regSnap = await getDoc(regRef);
       if (!regSnap.exists()) {
@@ -365,64 +407,60 @@
         return;
       }
 
+      // Claim / verify participant record transactionally
       const pRef = doc(db, "participants", Study.pid);
 
       await runTransaction(db, async (tx) => {
         const pSnap = await tx.get(pRef);
 
         if (!pSnap.exists()) {
-          const createdAtISO = new Date().toISOString();
+          const startISO = new Date().toISOString();
           tx.set(pRef, {
             uid: Study.uid,
             condition: registryCondition,
-            createdAtISO,
+            studyStartISO: startISO,
             totalLogs: 0,
             activeDays: 0,
             lastDayKey: null,
             createdAt: serverTimestamp()
           });
           Study.condition = registryCondition;
-          Study.createdAtISO = createdAtISO;
+          Study.studyStartISO = startISO;
           return;
         }
 
-        const pdata = pSnap.data();
+        const p = pSnap.data();
 
-        if (pdata?.uid && pdata.uid !== Study.uid) {
+        if (p?.uid && p.uid !== Study.uid) {
           throw new Error("This PID has already been used on another device. Contact the study team.");
         }
-
-        if (pdata?.condition !== registryCondition) {
+        if (p?.condition !== registryCondition) {
           throw new Error("Condition mismatch detected. Contact the study team.");
         }
-
-        if (!pdata?.uid) {
+        if (!p?.uid) {
           tx.update(pRef, { uid: Study.uid });
         }
 
-        Study.condition = pdata.condition;
-        Study.createdAtISO = pdata.createdAtISO || new Date().toISOString();
+        Study.condition = p.condition;
+        Study.studyStartISO = p.studyStartISO || new Date().toISOString();
       });
 
-      renderContext(Study.condition);
+      setContextUI(Study.condition);
       renderHabits();
       wireLogButton();
-
       await refreshUIFromServer();
 
-      // Manip check after 3 active days
       setTimeout(checkManipulationTiming, 2000);
     }
 
     // =========================
-    // 8) LOGGING (TRANSACTION + DAY DOC)
+    // 8) LOGGING (TRANSACTION; 1 PER CATEGORY PER DAY)
     // =========================
     async function logSelectedHabit() {
       if (!selectedHabitId) {
         showNotification("Select an action first.", "warn");
         return;
       }
-
       const habit = habits.find(h => h.id === selectedHabitId);
       if (!habit) {
         showNotification("Invalid selection.", "err");
@@ -430,7 +468,8 @@
       }
 
       const dayKey = localDayKey(new Date());
-      const logId = `${dayKey}_${habit.category}`; // 1 per category per day (LOCKED)
+      const logId = `${dayKey}_${habit.category}`; // structural enforcement
+
       const pRef = doc(db, "participants", Study.pid);
       const dayRef = doc(db, "participants", Study.pid, "days", dayKey);
       const logRef = doc(db, "participants", Study.pid, "logs", logId);
@@ -438,21 +477,18 @@
       await runTransaction(db, async (tx) => {
         const pSnap = await tx.get(pRef);
         if (!pSnap.exists()) throw new Error("Participant record missing.");
-
         const p = pSnap.data();
 
-        // Enforce UID ownership
         if (p?.uid && p.uid !== Study.uid) {
           throw new Error("This PID is already claimed on another device.");
         }
 
-        // Enforce category/day uniqueness
         const existingLog = await tx.get(logRef);
         if (existingLog.exists()) {
           throw new Error(`Already logged one ${prettyCategory(habit.category)} action today.`);
         }
 
-        // Create log (create-only)
+        // create-only log
         tx.set(logRef, {
           habitId: habit.id,
           category: habit.category,
@@ -461,7 +497,7 @@
           serverTime: serverTimestamp()
         });
 
-        // Upsert day doc (tracks whether day is active)
+        // day doc: increments activeDays only on first log of that day
         const daySnap = await tx.get(dayRef);
         if (!daySnap.exists()) {
           tx.set(dayRef, {
@@ -475,7 +511,6 @@
             lastDayKey: dayKey
           });
         } else {
-          // Day exists: may add category, but activeDays should not increment
           const d = daySnap.data();
           const categories = d?.categories || {};
           categories[habit.category] = true;
@@ -483,7 +518,7 @@
           tx.update(pRef, { totalLogs: increment(1), lastDayKey: dayKey });
         }
 
-        // Lightweight behaviour tracking: log hour + category (optional)
+        // optional minimal behaviour meta (auto-id doc)
         const bRef = doc(collection(db, "participants", Study.pid, "behavior"));
         tx.set(bRef, {
           type: "log_meta",
@@ -514,7 +549,7 @@
     }
 
     // =========================
-    // 9) REFRESH UI (FAST: participant doc + days subset)
+    // 9) REFRESH UI
     // =========================
     async function refreshUIFromServer() {
       const pRef = doc(db, "participants", Study.pid);
@@ -523,38 +558,53 @@
 
       const p = pSnap.data();
       Study.condition = p.condition;
-      Study.createdAtISO = p.createdAtISO || Study.createdAtISO;
+      Study.studyStartISO = p.studyStartISO || Study.studyStartISO;
 
-      const week = computeWeekFromCreatedAtISO(Study.createdAtISO);
+      const week = computeWeek(Study.studyStartISO);
       document.getElementById("weekDisplay").textContent = `Week ${week} of 8`;
       document.getElementById("progressFill").style.width = `${(week / 8) * 100}%`;
 
-      document.getElementById("totalLogs").textContent = String(p.totalLogs || 0);
-      document.getElementById("activeDays").textContent = String(p.activeDays || 0);
+      const totalLogs = Number(p.totalLogs || 0);
+      const activeDays = Number(p.activeDays || 0);
+      document.getElementById("totalLogs").textContent = String(totalLogs);
+      document.getElementById("activeDays").textContent = String(activeDays);
 
-      // Streak: walk backward over days docs (max 56 checks, but reads are cheap and bounded)
+      // streak from days docs (bounded)
       const daysCol = collection(db, "participants", Study.pid, "days");
       const daysSnap = await getDocs(query(daysCol, orderBy("dayKey", "desc"), limit(56)));
       const daysSet = new Set();
-      daysSnap.forEach(d => { const v = d.data(); if (v?.dayKey) daysSet.add(v.dayKey); });
+      daysSnap.forEach(d => {
+        const v = d.data();
+        if (v?.dayKey) daysSet.add(v.dayKey);
+      });
 
       let streak = 0;
       const cursor = new Date();
       cursor.setHours(0,0,0,0);
       while (true) {
         const k = localDayKey(cursor);
-        if (daysSet.has(k)) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
-        else break;
+        if (daysSet.has(k)) {
+          streak += 1;
+          cursor.setDate(cursor.getDate() - 1);
+        } else break;
       }
       document.getElementById("streakDays").textContent = String(streak);
 
-      // Recent logs
+      // recent logs
       const logsCol = collection(db, "participants", Study.pid, "logs");
       const recentQ = query(logsCol, orderBy("serverTime", "desc"), limit(10));
       const recentSnap = await getDocs(recentQ);
       const recent = [];
       recentSnap.forEach(d => recent.push(d.data()));
       renderHistory(recent);
+
+      updateContextPanelUI({
+        condition: Study.condition,
+        totalLogs,
+        activeDays,
+        streak,
+        week
+      });
     }
 
     function renderHistory(logs) {
@@ -563,6 +613,7 @@
         historyList.innerHTML = `<div class="empty-state">No logs yet. Select an action you completed today and log it.</div>`;
         return;
       }
+
       historyList.innerHTML = "";
       logs.forEach(x => {
         const habit = habits.find(h => h.id === x.habitId);
@@ -581,11 +632,9 @@
     }
 
     // =========================
-    // 10) MANIPULATION CHECK (AFTER 3 ACTIVE DAYS)
+    // 10) MANIPULATION CHECK (AFTER >=3 ACTIVE DAYS; ONCE)
     // =========================
     async function checkManipulationTiming() {
-      if (!Study.pid) return;
-
       try {
         const pRef = doc(db, "participants", Study.pid);
         const pSnap = await getDoc(pRef);
@@ -597,16 +646,16 @@
         const checkSnap = await getDoc(checkRef);
 
         if (activeDays >= 3 && !checkSnap.exists()) {
-          setTimeout(() => showManipulationCheckModal(), 600);
+          setTimeout(showManipulationCheckModal, 600);
         }
-      } catch (e) {
-        console.log("Manipulation timing check error:", e);
+      } catch (_) {
+        // silent
       }
     }
 
     function showManipulationCheckModal() {
-      const modal = document.createElement('div');
-      modal.id = 'manipulationModal';
+      const modal = document.createElement("div");
+      modal.id = "manipulationModal";
       modal.style.cssText = `
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
         background: rgba(0,0,0,0.7);
@@ -615,63 +664,59 @@
       `;
 
       modal.innerHTML = `
-        <div style="
-          background: white; border-radius: 24px; max-width: 450px; width: 100%;
-          padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        ">
-          <h3 style="color: #004d40; margin-bottom: 10px; font-size: 22px;">🤔 Quick Check-in</h3>
-          <p style="color: #5e7a6b; margin-bottom: 18px;">Please answer 3 short questions about your experience.</p>
+        <div style="background:white;border-radius:24px;max-width:450px;width:100%;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+          <h3 style="color:#004d40;margin-bottom:10px;font-size:22px;">🤔 Quick Check-in</h3>
+          <p style="color:#5e7a6b;margin-bottom:18px;line-height:1.35;">
+            Please answer 3 short questions about your experience.
+          </p>
 
-          <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">1. Which statement best describes what you think this study emphasises?</p>
-            <label style="display:block; margin-bottom:8px;">
+          <div style="margin-bottom:18px;">
+            <p style="font-weight:900;color:#004d40;margin-bottom:10px;line-height:1.35;">
+              1. Which statement best describes what you think this study emphasises?
+            </p>
+            <label style="display:block;margin-bottom:8px;">
               <input type="radio" name="focus" value="comparison" style="margin-right:8px;">
-              <span>Performing better than others</span>
+              <span>Performing better than other participants</span>
             </label>
-            <label style="display:block; margin-bottom:8px;">
+            <label style="display:block;margin-bottom:8px;">
               <input type="radio" name="focus" value="duty" style="margin-right:8px;">
-              <span>Doing my part for the community/environment</span>
+              <span>Contributing to the collective good / community</span>
             </label>
-            <label style="display:block; margin-bottom:8px;">
+            <label style="display:block;margin-bottom:8px;">
               <input type="radio" name="focus" value="personal" style="margin-right:8px;">
-              <span>Tracking my own habits</span>
+              <span>Just tracking my personal habits</span>
             </label>
             <label style="display:block;">
               <input type="radio" name="focus" value="unsure" style="margin-right:8px;">
-              <span>Not sure / didn't notice</span>
+              <span>Not sure / didn’t notice</span>
             </label>
           </div>
 
-          <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. While using the tracker, how often did you think about how your actions compare to other participants?</p>
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span>
-              <span style="font-size:12px;">Constantly</span>
-            </div>
+          <div style="margin-bottom:18px;">
+            <p style="font-weight:900;color:#004d40;margin-bottom:10px;line-height:1.35;">
+              2. While using the tracker, how often did you think about how your actions compare to other participants?
+            </p>
             <input type="range" id="othersScale" min="1" max="7" value="4" style="width:100%;">
-            <div style="text-align:center; margin-top:5px;">
-              <span id="othersValue" style="font-weight:900; color:#004d40;">4</span>/7
+            <div style="text-align:center;margin-top:6px;">
+              <span id="othersValue" style="font-weight:950;color:#004d40;">4</span>/7
             </div>
           </div>
 
-          <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">3. While using the tracker, how often did you feel a sense of responsibility to do your part for the community/environment?</p>
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span>
-              <span style="font-size:12px;">Constantly</span>
-            </div>
+          <div style="margin-bottom:18px;">
+            <p style="font-weight:900;color:#004d40;margin-bottom:10px;line-height:1.35;">
+              3. While using the tracker, how often did you feel a sense of responsibility to do your part for the community/environment?
+            </p>
             <input type="range" id="communityScale" min="1" max="7" value="4" style="width:100%;">
-            <div style="text-align:center; margin-top:5px;">
-              <span id="communityValue" style="font-weight:900; color:#004d40;">4</span>/7
+            <div style="text-align:center;margin-top:6px;">
+              <span id="communityValue" style="font-weight:950;color:#004d40;">4</span>/7
             </div>
           </div>
 
-          <button id="submitMC" style="
-            background:#004d40; color:white; border:none; padding:14px;
-            border-radius:12px; width:100%; font-size:16px; font-weight:900; cursor:pointer;
-          ">Submit</button>
+          <button id="submitMC" style="background:#004d40;color:white;border:none;padding:14px;border-radius:12px;width:100%;font-size:16px;font-weight:950;cursor:pointer;">
+            Submit
+          </button>
 
-          <p style="text-align:center; margin-top:12px; font-size:12px; color:#999;">
+          <p style="text-align:center;margin-top:12px;font-size:12px;color:#999;line-height:1.35;">
             Your responses help ensure the quality of our research.
           </p>
         </div>
@@ -679,21 +724,21 @@
 
       document.body.appendChild(modal);
 
-      document.getElementById('othersScale').addEventListener('input', (e) => {
-        document.getElementById('othersValue').textContent = e.target.value;
+      document.getElementById("othersScale").addEventListener("input", (e) => {
+        document.getElementById("othersValue").textContent = e.target.value;
       });
-      document.getElementById('communityScale').addEventListener('input', (e) => {
-        document.getElementById('communityValue').textContent = e.target.value;
+      document.getElementById("communityScale").addEventListener("input", (e) => {
+        document.getElementById("communityValue").textContent = e.target.value;
       });
-      document.getElementById('submitMC').addEventListener('click', submitManipulationCheck);
+      document.getElementById("submitMC").addEventListener("click", submitManipulationCheck);
     }
 
     async function submitManipulationCheck() {
       const focus = document.querySelector('input[name="focus"]:checked')?.value;
-      const othersScale = Number(document.getElementById('othersScale').value);
-      const communityScale = Number(document.getElementById('communityScale').value);
+      const othersScale = Number(document.getElementById("othersScale").value);
+      const communityScale = Number(document.getElementById("communityScale").value);
 
-      if (!focus) { alert('Please answer question 1'); return; }
+      if (!focus) { alert("Please answer question 1"); return; }
 
       try {
         const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
@@ -705,9 +750,10 @@
           completedAtISO: new Date().toISOString(),
           dayKey: localDayKey()
         });
-        document.getElementById('manipulationModal')?.remove();
+
+        document.getElementById("manipulationModal")?.remove();
         showNotification("Thank you. Your responses were saved.", "ok");
-      } catch (e) {
+      } catch (_) {
         showNotification("Error saving responses.", "err");
       }
     }
