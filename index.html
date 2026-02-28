@@ -8,140 +8,83 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
     body { background: linear-gradient(135deg, #1a5f4b 0%, #2e8b57 100%); min-height: 100vh; padding: 15px; }
-
     .container {
-      max-width: 520px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
-      transition: all 0.3s ease;
+      max-width: 520px; margin: 0 auto; background: white; border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; transition: all 0.25s ease;
     }
 
-    /* Theme-specific styles */
-    .container.competitive .stat-number { position: relative; color: #c4450c; }
-    .container.competitive .habit-card:hover { border-color: #c4450c; transform: scale(0.98); }
-    .container.duty .habit-card:hover { background: #e8f4f0; border-color: #004d40; }
+    /* Condition themes (subtle; avoid “deception”) */
+    .container.competitive .log-button { background: #c4450c; }
+    .container.competitive .log-button:hover { background: #a3380a; }
+    .container.competitive .context-pill { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
+    .container.duty .context-pill { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
 
     .header { background: linear-gradient(135deg, #004d40, #1e4d3b); color: white; padding: 22px 18px 18px; text-align: center; position: relative; }
-    .flag-badge { position: absolute; top: 14px; right: 14px; background: #ffb300; color: #004d40; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .flag-badge { position: absolute; top: 14px; right: 14px; background: #ffb300; color: #004d40; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
     .header h1 { font-size: 26px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .header p { opacity: 0.92; font-size: 14px; }
     .subline { margin-top: 8px; font-size: 12px; opacity: 0.9; }
 
     .progress-section { background: #f5f9f7; padding: 18px; border-bottom: 1px solid #d4e8dd; }
     .week-indicator { text-align: center; margin-bottom: 12px; }
-    .week-badge { background: #004d40; color: white; padding: 8px 18px; border-radius: 30px; font-weight: 700; display: inline-block; font-size: 13px; }
+    .week-badge { background: #004d40; color: white; padding: 8px 18px; border-radius: 30px; font-weight: 800; display: inline-block; font-size: 13px; }
     .progress-bar { height: 10px; background: #d4e8dd; border-radius: 10px; overflow: hidden; margin: 12px 0 14px; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, #004d40, #2e8b57); width: 0%; transition: width 0.3s ease; }
 
     .stats { display: flex; justify-content: space-around; text-align: center; background: white; padding: 14px 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,77,64,0.1); }
     .stat-item { flex: 1; }
-    .stat-number { font-size: 24px; font-weight: 800; transition: color 0.3s ease; }
+    .stat-number { font-size: 24px; font-weight: 900; color: #004d40; }
     .stat-label { font-size: 10px; color: #5e7a6b; text-transform: uppercase; letter-spacing: 0.6px; }
 
     .actions-section { padding: 18px; }
-    .section-title { color: #004d40; font-size: 17px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-title { color: #004d40; font-size: 17px; margin-bottom: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
 
     .tips-card { background: #e8f4f0; padding: 14px; border-radius: 16px; margin-bottom: 12px; border-left: 4px solid #004d40; }
     .tips-card p { color: #004d40; font-size: 13px; }
     .rule-text { margin-top: 8px; font-size: 12px; color: #004d40; opacity: 0.85; }
-    .reset-note { margin-top: 4px; font-size: 11px; color: #5e7a6b; font-style: italic; }
 
-    .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 800; font-size: 12px; margin-bottom: 10px; }
-    .context-competitive { background: rgba(255,179,0,0.18); color: #7a4d00; border: 1px solid rgba(255,179,0,0.35); }
-    .context-duty { background: rgba(0,77,64,0.12); color: #004d40; border: 1px solid rgba(0,77,64,0.22); }
-
+    .context-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; font-weight: 900; font-size: 12px; margin-bottom: 10px; }
     .context-panel {
-      margin-top: 10px;
-      background: white;
-      border: 1px solid #d4e8dd;
-      border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 2px 10px rgba(0,77,64,0.06);
-      transition: all 0.3s ease;
+      margin-top: 10px; background: white; border: 1px solid #d4e8dd; border-radius: 14px;
+      padding: 12px; box-shadow: 0 2px 10px rgba(0,77,64,0.06);
     }
     .context-panel-title { font-size: 12px; font-weight: 900; letter-spacing: 0.5px; color: #004d40; opacity: 0.85; }
-    .context-panel-value { font-size: 20px; font-weight: 900; color: #004d40; margin-top: 6px; transition: all 0.3s ease; }
+    .context-panel-value { font-size: 18px; font-weight: 950; color: #004d40; margin-top: 6px; }
     .context-panel-sub { font-size: 12px; color: #5e7a6b; margin-top: 4px; }
 
     .habit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
     .habit-card {
-      background: #f5f9f7;
-      border-radius: 16px;
-      padding: 14px 10px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
-      box-shadow: 0 2px 6px rgba(0,77,64,0.1);
-      position: relative;
+      background: #f5f9f7; border-radius: 16px; padding: 14px 10px 12px; text-align: center;
+      cursor: pointer; transition: all 0.15s ease; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,77,64,0.1);
     }
-    .habit-card.selected {
-      background: #e0f2e9;
-      border-color: #004d40;
-      transform: scale(0.99);
-      box-shadow: 0 4px 12px rgba(0,77,64,0.2);
-    }
+    .habit-card.selected { background: #e0f2e9; border-color: #004d40; transform: scale(0.99); box-shadow: 0 4px 12px rgba(0,77,64,0.2); }
     .habit-emoji { font-size: 26px; margin-bottom: 8px; }
-    .habit-name { font-size: 12px; font-weight: 800; color: #004d40; line-height: 1.25; min-height: 36px; }
-    .habit-category { font-size: 10px; font-weight: 900; letter-spacing: 0.6px; margin-top: 7px; opacity: 0.65; color: #004d40; }
+    .habit-name { font-size: 12px; font-weight: 900; color: #004d40; line-height: 1.25; min-height: 36px; }
+    .habit-category { font-size: 10px; font-weight: 950; letter-spacing: 0.6px; margin-top: 7px; opacity: 0.65; color: #004d40; }
 
     .log-button {
-      background: #004d40;
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 16px;
-      border-radius: 16px;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.2s ease, background 0.3s ease;
+      background: #004d40; color: white; border: none; width: 100%; padding: 16px; border-radius: 16px;
+      font-size: 15px; font-weight: 950; cursor: pointer; transition: transform 0.12s ease, opacity 0.2s ease, background 0.2s ease;
       box-shadow: 0 4px 12px rgba(0,77,64,0.3);
     }
     .log-button:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
     .log-button:active:not(:disabled) { transform: scale(0.99); }
-    .container.competitive .log-button { background: #c4450c; }
-    .container.competitive .log-button:hover { background: #a3380a; }
 
     .history-section { padding: 18px; background: #f5f9f7; border-top: 1px solid #d4e8dd; }
     .history-item { display: flex; align-items: center; padding: 12px; background: white; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,77,64,0.05); border: 1px solid #e0f2e9; }
     .history-emoji { font-size: 22px; margin-right: 12px; width: 44px; height: 44px; background: #f5f9f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .history-details { flex: 1; }
-    .history-name { font-weight: 900; color: #004d40; font-size: 13px; }
+    .history-name { font-weight: 950; color: #004d40; font-size: 13px; }
     .history-time { font-size: 11px; color: #5e7a6b; margin-top: 4px; }
-    .history-tag { font-size: 10px; font-weight: 900; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
+    .history-tag { font-size: 10px; font-weight: 950; letter-spacing: 0.6px; color: #004d40; opacity: 0.6; margin-top: 4px; }
     .empty-state { text-align: center; padding: 24px 14px; color: #5e7a6b; background: white; border-radius: 16px; font-size: 13px; }
+
     .footer-note { text-align: center; padding: 14px; background: #f5f9f7; font-size: 11px; color: #5e7a6b; border-top: 1px solid #d4e8dd; }
 
     .notification {
-      position: fixed;
-      bottom: 18px;
-      left: 18px;
-      right: 18px;
-      max-width: 520px;
-      margin: 0 auto;
-      background: #004d40;
-      color: white;
-      padding: 14px;
-      border-radius: 16px;
-      text-align: center;
-      display: none;
-      z-index: 1000;
-      font-weight: 900;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      animation: slideUp 0.3s ease;
-    }
-    .notification.competitive { background: #c4450c; }
-    .notification.duty { background: #004d40; }
-
-    .habit-card:focus { outline: 2px solid rgba(0,77,64,0.5); outline-offset: 2px; }
-
-    @keyframes slideUp {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      position: fixed; bottom: 18px; left: 18px; right: 18px; max-width: 520px; margin: 0 auto;
+      background: #004d40; color: white; padding: 14px; border-radius: 16px; text-align: center; display: none;
+      z-index: 1000; font-weight: 950; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -181,7 +124,7 @@
     <div class="actions-section">
       <div class="section-title"><span>🌱</span> Today’s Actions</div>
 
-      <div class="tips-card" id="tipsCard">
+      <div class="tips-card">
         <div id="contextPill" class="context-pill" style="display:none;"></div>
         <p id="contextText">Loading study context…</p>
 
@@ -194,8 +137,8 @@
         <div class="rule-text">
           Rule: You may log up to one action in each category per day (PURCHASE, CIRCULARITY, RESOURCE).
           If you completed multiple actions within a category, log only the most effortful one.
+          Logging resets at midnight local time.
         </div>
-        <div class="reset-note">⏰ Logging resets at midnight local time.</div>
       </div>
 
       <div class="habit-grid" id="habitGrid"></div>
@@ -221,13 +164,15 @@
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore,
-      doc, getDoc, setDoc,
+      doc, getDoc, setDoc, runTransaction,
       collection, query, orderBy, limit, getDocs,
-      serverTimestamp
+      serverTimestamp,
+      where
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // =========================
-    // 1) FIREBASE CONFIG
+    // 1) FIREBASE CONFIG (yours)
     // =========================
     const firebaseConfig = {
       apiKey: "AIzaSyCNCfnvq8R8ImxVzxZkNZss8grgfkZE-l8",
@@ -240,21 +185,21 @@
     };
 
     // =========================
-    // 2) HABITS
+    // 2) HABITS (your 8 + public option)
     // =========================
     const habits = [
-      // Purchase-stage
+      // PURCHASE
       { id: 1, name: "Refused Products with Excessive Packaging", emoji: "📦❌", category: "purchase" },
       { id: 2, name: "Avoided Unnecessary Purchases", emoji: "💭🚫", category: "purchase" },
       { id: 3, name: "Used Reusable Shopping Bags", emoji: "🛍️", category: "purchase" },
       { id: 9, name: "Chose a More Environmentally Sustainable Option in a Public Setting", emoji: "🌱🏪", category: "purchase" },
 
-      // Circularity
+      // CIRCULARITY
       { id: 4, name: "Donated or Gave Away Unused Items", emoji: "🎁", category: "circularity" },
       { id: 5, name: "Separated Glass, Plastic, and Paper for Recycling", emoji: "♻️", category: "circularity" },
       { id: 8, name: "Repaired Broken Items Instead of Buying New", emoji: "🔧", category: "circularity" },
 
-      // Resource
+      // RESOURCE
       { id: 6, name: "Reduced Water Usage", emoji: "💧", category: "resource" },
       { id: 7, name: "Switched Off Geyser When Not Needed", emoji: "⚡", category: "resource" }
     ];
@@ -262,7 +207,7 @@
     // =========================
     // 3) STATE
     // =========================
-    const Study = { pid: null, uid: null, condition: null, totalLogs: 0, createdAtDate: null };
+    const Study = { pid: null, uid: null, condition: null, createdAtDate: null };
     let selectedHabitId = null;
 
     // =========================
@@ -280,7 +225,8 @@
       return `${y}-${m}-${day}`;
     }
 
-    function computeWeekFromServerCreatedAt(createdAtDate) {
+    function computeWeek(createdAtDate) {
+      if (!createdAtDate) return 1;
       const start = createdAtDate;
       const now = new Date();
       const ms = now - start;
@@ -288,11 +234,10 @@
       return Math.min(8, Math.max(1, Math.floor(days / 7) + 1));
     }
 
-    function showNotification(message, type = "ok", contextClass = "") {
+    function showNotification(message, type = "ok") {
       const el = document.getElementById("notification");
       el.textContent = message;
       el.style.background = (type === "warn") ? "#856404" : (type === "err") ? "#7f1d1d" : "#004d40";
-      el.className = `notification ${contextClass || ""}`;
       el.style.display = "block";
       setTimeout(() => { el.style.display = "none"; }, 3200);
     }
@@ -302,26 +247,6 @@
       if (cat === "circularity") return "CIRCULARITY";
       if (cat === "resource") return "RESOURCE";
       return String(cat || "").toUpperCase();
-    }
-
-    function getContextualMessage(condition) {
-      if (condition === "competitive") {
-        const messages = [
-          "🏆 Meeting high standards today.",
-          "🏆 Strive for excellence across categories.",
-          "🏆 Aim for your personal best.",
-          "🏆 Every action reflects your standards."
-        ];
-        return messages[Math.floor(Math.random() * messages.length)];
-      } else {
-        const messages = [
-          "🤝 Doing your part matters.",
-          "🤝 Your actions contribute to the community.",
-          "🤝 Responsibility shown today.",
-          "🤝 Thank you for participating."
-        ];
-        return messages[Math.floor(Math.random() * messages.length)];
-      }
     }
 
     // =========================
@@ -340,112 +265,105 @@
 
       habits.forEach(habit => {
         const card = document.createElement("div");
-        card.tabIndex = 0;
         card.className = `habit-card ${selectedHabitId === habit.id ? "selected" : ""}`;
         card.innerHTML = `
           <div class="habit-emoji">${habit.emoji}</div>
           <div class="habit-name">${habit.name}</div>
           <div class="habit-category">${prettyCategory(habit.category)}</div>
         `;
-        const select = () => {
+        card.addEventListener("click", () => {
           selectedHabitId = habit.id;
           document.getElementById("logButton").disabled = false;
           renderHabits();
-        };
-        card.addEventListener("click", select);
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            select();
-          }
         });
         grid.appendChild(card);
       });
     }
 
     // =========================
-    // 7) SELF-BASED CONTEXT PANEL (NEUTRAL LANGUAGE)
+    // 7) CONTEXT RENDER
     // =========================
-    function computeCategoryCoverageForToday(allLogs) {
-      const today = localDayKey(new Date());
-      const cats = new Set(allLogs.filter(x => x.dayKey === today).map(x => x.category));
-      return cats.size; // 0..3
+    function applyConditionTheme(condition) {
+      const c = document.getElementById("mainContainer");
+      c.classList.remove("competitive", "duty");
+      c.classList.add(condition);
     }
 
-    function computeThisWeekCount(allLogs, createdAtDate) {
-      const start = createdAtDate;
-      const now = new Date();
-      const daysSince = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-      const weekStartOffset = Math.floor(daysSince / 7) * 7;
-
-      const weekStart = new Date(start);
-      weekStart.setHours(0,0,0,0);
-      weekStart.setDate(weekStart.getDate() + weekStartOffset);
-
-      return allLogs.filter(x => {
-        if (!x.dayKey) return false;
-        const d = new Date(x.dayKey + "T00:00:00");
-        return d >= weekStart && d <= now;
-      }).length;
-    }
-
-    async function updateContextPanelFromSelf(allLogs) {
-      const panel = document.getElementById("contextPanel");
-      const panelTitle = document.getElementById("panelTitle");
-      const panelValue = document.getElementById("panelValue");
-      const panelSub = document.getElementById("panelSub");
-      const mainContainer = document.getElementById("mainContainer");
-
-      panel.style.display = "block";
-
-      const coverageToday = computeCategoryCoverageForToday(allLogs); // 0..3
-      const createdAtDate = Study.createdAtDate || new Date();
-      const weeklyCount = computeThisWeekCount(allLogs, createdAtDate);
-
-      if (Study.condition === "competitive") {
-        mainContainer.classList.add("competitive");
-        mainContainer.classList.remove("duty");
-        panelTitle.textContent = "🏆 HIGH STANDARDS (PERSONAL)";
-        panelValue.textContent = `Categories today: ${coverageToday} of 3`;
-        panelSub.textContent = `Logs this week: ${weeklyCount}`;
-      } else {
-        mainContainer.classList.add("duty");
-        mainContainer.classList.remove("competitive");
-        panelTitle.textContent = "🤝 RESPONSIBILITY (COMMUNITY)";
-        panelValue.textContent = `Categories today: ${coverageToday} of 3`;
-        panelSub.textContent = `Logs this week: ${weeklyCount}`;
-      }
-    }
-
-    // =========================
-    // 8) RENDER CONTEXT (STRENGTHENED MANIPULATION)
-    // =========================
     function renderContext(condition) {
       const pill = document.getElementById("contextPill");
       const text = document.getElementById("contextText");
-      const mainContainer = document.getElementById("mainContainer");
+      const panel = document.getElementById("contextPanel");
+      const panelTitle = document.getElementById("panelTitle");
 
       pill.style.display = "inline-flex";
+      panel.style.display = "block";
 
       if (condition === "competitive") {
-        pill.className = "context-pill context-competitive";
-        pill.innerHTML = "🏆 HIGH STANDARDS (PERSONAL)";
-        text.innerHTML = `This study version highlights <strong>high personal standards</strong> and striving for excellent performance in your sustainable actions.<br><br>
-        <em>Aim to meet your highest standard across the three categories (max one per category per day).</em>`;
-        mainContainer.classList.add("competitive");
-        mainContainer.classList.remove("duty");
+        pill.textContent = "🏆 Competitive Context";
+        text.textContent = "This version emphasises performance relative to other participants.";
+        panelTitle.textContent = "🏆 YOUR PERFORMANCE (BASED ON TOTAL LOGS)";
       } else {
-        pill.className = "context-pill context-duty";
-        pill.innerHTML = "🤝 RESPONSIBILITY (COMMUNITY)";
-        text.innerHTML = `This study version highlights <strong>responsibility and doing your part for the community</strong> through sustainable actions.<br><br>
-        <em>Do what you should do across the three categories (max one per category per day).</em>`;
-        mainContainer.classList.add("duty");
-        mainContainer.classList.remove("competitive");
+        pill.textContent = "🤝 Duty Context";
+        text.textContent = "This version emphasises shared responsibility and doing your part.";
+        panelTitle.textContent = "🤝 COMMUNITY IMPACT (BASED ON TOTAL LOGS)";
+      }
+
+      applyConditionTheme(condition);
+    }
+
+    // =========================
+    // 8) CONTEXT PANEL METRICS (scalable)
+    // =========================
+    async function updateContextPanel(totalLogs) {
+      const panelValue = document.getElementById("panelValue");
+      const panelSub = document.getElementById("panelSub");
+
+      const participantsCol = collection(db, "participants");
+
+      // Total participants (count aggregation)
+      const totalSnap = await getCountFromServer(query(participantsCol));
+      const totalParticipants = totalSnap.data().count || 0;
+
+      if (Study.condition === "competitive") {
+        // Count how many participants have MORE logs than this participant
+        const higherQ = query(participantsCol, where("totalLogs", ">", totalLogs));
+        const higherSnap = await getCountFromServer(higherQ);
+        const higherCount = higherSnap.data().count || 0;
+
+        if (totalParticipants <= 0) {
+          panelValue.textContent = "—";
+          panelSub.textContent = "—";
+          return;
+        }
+
+        // Rank position (1 = best). Percentile = (rank/total)*100.
+        const rank = higherCount + 1;
+        const percentile = Math.max(1, Math.min(100, Math.round((rank / totalParticipants) * 100)));
+
+        panelValue.textContent = `Top ${percentile}% (rank ${rank} of ${totalParticipants})`;
+        panelSub.textContent = "This is computed from total logs only (no identities, no usernames).";
+      } else {
+        // Community total logs (count logs across participants is expensive).
+        // Robust approach: keep a global counter doc incremented in transaction.
+        // If you do not create it, we fall back to showing participant-only stats.
+        const counterRef = doc(db, "stats", "global");
+        const counterSnap = await getDoc(counterRef);
+
+        if (counterSnap.exists()) {
+          const g = counterSnap.data();
+          const globalLogs = Number(g?.totalLogs || 0);
+          panelValue.textContent = `${globalLogs.toLocaleString()} total actions`;
+          const pct = globalLogs > 0 ? Math.round((totalLogs / globalLogs) * 100) : 0;
+          panelSub.textContent = `Your contribution: ${totalLogs} (${pct}%).`;
+        } else {
+          panelValue.textContent = `${totalLogs} actions logged`;
+          panelSub.textContent = "Global totals not enabled yet (optional).";
+        }
       }
     }
 
     // =========================
-    // 9) BOOT STUDY
+    // 9) BOOT STUDY (PID registry locks condition)
     // =========================
     async function bootStudy() {
       Study.pid = getParam("pid");
@@ -459,6 +377,7 @@
       const cred = await signInAnonymously(auth);
       Study.uid = cred.user.uid;
 
+      // PID registry required
       const regRef = doc(db, "pid_registry", Study.pid);
       const regSnap = await getDoc(regRef);
       if (!regSnap.exists()) {
@@ -468,53 +387,66 @@
       }
       const reg = regSnap.data();
       const condition = reg?.condition;
-
       if (condition !== "competitive" && condition !== "duty") {
         showNotification("PID registry misconfigured. Contact the study team.", "err");
         document.getElementById("contextText").textContent = "Registry entry missing/invalid condition.";
         return;
       }
 
+      // Create/claim participant doc
       const pRef = doc(db, "participants", Study.pid);
-      const pSnap = await getDoc(pRef);
+      await runTransaction(db, async (tx) => {
+        const pSnap = await tx.get(pRef);
 
-      if (!pSnap.exists()) {
-        await setDoc(pRef, {
-          uid: Study.uid,
-          condition,
-          createdAt: serverTimestamp()
-        });
-      } else {
-        const pdata = pSnap.data();
-        if (pdata?.uid && pdata.uid !== Study.uid) {
-          showNotification("This PID has already been used on another device. Contact the study team.", "err");
-          document.getElementById("contextText").textContent = "PID already claimed on another device.";
+        if (!pSnap.exists()) {
+          tx.set(pRef, {
+            uid: Study.uid,
+            condition,
+            totalLogs: 0,
+            activeDays: 0,
+            streakDays: 0,
+            lastActiveDayKey: null,
+            createdAt: serverTimestamp()
+          });
           return;
         }
-        if (pdata?.condition !== condition) {
-          showNotification("Condition mismatch detected. Contact the study team.", "err");
-          document.getElementById("contextText").textContent = "Registry/participant mismatch.";
-          return;
-        }
-      }
 
-      Study.condition = condition;
+        const p = pSnap.data();
+        if (p?.uid && p.uid !== Study.uid) {
+          throw new Error("This PID has already been used on another device. Contact the study team.");
+        }
+        if (p?.condition !== condition) {
+          throw new Error("Condition mismatch detected. Contact the study team.");
+        }
+        if (!p?.uid) {
+          tx.update(pRef, { uid: Study.uid });
+        }
+      });
+
+      // Read participant to get createdAt for week computation
+      const pSnap2 = await getDoc(pRef);
+      const p2 = pSnap2.data();
+      Study.condition = p2.condition;
+      Study.createdAtDate = p2?.createdAt?.toDate ? p2.createdAt.toDate() : null;
+
       renderContext(Study.condition);
       renderHabits();
       wireLogButton();
       await refreshUIFromServer();
 
-      setTimeout(checkManipulationTiming, 2500);
+      // Trigger manipulation check after 3 active days
+      setTimeout(checkManipulationTiming, 2000);
     }
 
     // =========================
-    // 10) LOGGING
+    // 10) LOGGING (transaction hardened)
     // =========================
     async function logSelectedHabit() {
       if (!selectedHabitId) {
         showNotification("Select an action first.", "warn");
         return;
       }
+
       const habit = habits.find(h => h.id === selectedHabitId);
       if (!habit) {
         showNotification("Invalid selection.", "err");
@@ -522,26 +454,88 @@
       }
 
       const dayKey = localDayKey(new Date());
-      const logId = `${dayKey}_${habit.category}`; // 1 per category per day
+
+      // One per category per day (enforced by deterministic doc id)
+      const logId = `${dayKey}_${habit.category}`;
       const logRef = doc(db, "participants", Study.pid, "logs", logId);
 
-      const existing = await getDoc(logRef);
-      if (existing.exists()) {
-        showNotification(`Already logged one ${prettyCategory(habit.category)} action today.`, "warn");
-        return;
-      }
+      // Day doc (for activeDays + streak, independent of category)
+      const dayRef = doc(db, "participants", Study.pid, "days", dayKey);
 
-      await setDoc(logRef, {
-        habitId: habit.id,
-        category: habit.category,
-        dayKey,
-        clientISO: new Date().toISOString(),
-        serverTime: serverTimestamp()
+      const pRef = doc(db, "participants", Study.pid);
+
+      // Optional global counter (only used in duty panel; safe to enable for both)
+      const globalRef = doc(db, "stats", "global");
+
+      await runTransaction(db, async (tx) => {
+        const [pSnap, logSnap, daySnap, gSnap] = await Promise.all([
+          tx.get(pRef),
+          tx.get(logRef),
+          tx.get(dayRef),
+          tx.get(globalRef)
+        ]);
+
+        if (!pSnap.exists()) throw new Error("Participant record missing.");
+        const p = pSnap.data();
+
+        if (logSnap.exists()) {
+          throw new Error(`Already logged one ${prettyCategory(habit.category)} action today.`);
+        }
+
+        // Create the category log (create-only)
+        tx.set(logRef, {
+          habitId: habit.id,
+          category: habit.category,
+          dayKey,
+          clientISO: new Date().toISOString(),
+          serverTime: serverTimestamp()
+        });
+
+        // If first log of the day, create day doc and update activeDays + streak
+        let activeDays = Number(p.activeDays || 0);
+        let streakDays = Number(p.streakDays || 0);
+        const last = p.lastActiveDayKey;
+
+        if (!daySnap.exists()) {
+          tx.set(dayRef, { dayKey, createdAt: serverTimestamp() });
+          activeDays += 1;
+
+          // Streak logic (local-day key arithmetic)
+          if (!last) {
+            streakDays = 1;
+          } else {
+            const lastDate = new Date(last + "T00:00:00");
+            const todayDate = new Date(dayKey + "T00:00:00");
+            const diffDays = Math.round((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+            if (diffDays === 1) streakDays += 1;
+            else if (diffDays === 0) { /* same day */ }
+            else streakDays = 1;
+          }
+
+          tx.update(pRef, {
+            activeDays,
+            streakDays,
+            lastActiveDayKey: dayKey
+          });
+        }
+
+        // totalLogs increments every successful category log
+        const totalLogs = Number(p.totalLogs || 0) + 1;
+        tx.update(pRef, { totalLogs });
+
+        // Optional: keep a global total (create doc if missing)
+        if (!gSnap.exists()) {
+          tx.set(globalRef, { totalLogs: 1, updatedAt: serverTimestamp() });
+        } else {
+          const g = gSnap.data();
+          tx.update(globalRef, {
+            totalLogs: Number(g.totalLogs || 0) + 1,
+            updatedAt: serverTimestamp()
+          });
+        }
       });
 
-      trackLoggingBehavior(habit);
-      showNotification(getContextualMessage(Study.condition), "ok", Study.condition);
-
+      showNotification("Action recorded.");
       await refreshUIFromServer();
     }
 
@@ -560,53 +554,36 @@
     }
 
     // =========================
-    // 11) REFRESH UI
+    // 11) REFRESH UI (no full scans required)
     // =========================
     async function refreshUIFromServer() {
       const pRef = doc(db, "participants", Study.pid);
       const pSnap = await getDoc(pRef);
       if (!pSnap.exists()) return;
-      const pdata = pSnap.data();
+      const p = pSnap.data();
 
-      Study.createdAtDate = pdata?.createdAt?.toDate ? pdata.createdAt.toDate() : (Study.createdAtDate || new Date());
-
-      let week = 1;
-      if (Study.createdAtDate) {
-        week = computeWeekFromServerCreatedAt(Study.createdAtDate);
-      }
+      const createdAtDate = p?.createdAt?.toDate ? p.createdAt.toDate() : Study.createdAtDate;
+      const week = computeWeek(createdAtDate);
       document.getElementById("weekDisplay").textContent = `Week ${week} of 8`;
       document.getElementById("progressFill").style.width = `${(week / 8) * 100}%`;
 
+      const totalLogs = Number(p.totalLogs || 0);
+      const activeDays = Number(p.activeDays || 0);
+      const streakDays = Number(p.streakDays || 0);
+
+      document.getElementById("totalLogs").textContent = String(totalLogs);
+      document.getElementById("activeDays").textContent = String(activeDays);
+      document.getElementById("streakDays").textContent = String(streakDays);
+
+      await updateContextPanel(totalLogs);
+
+      // Recent logs (small query)
       const logsCol = collection(db, "participants", Study.pid, "logs");
-      const allSnap = await getDocs(query(logsCol, orderBy("dayKey", "desc")));
-      const allLogs = [];
-      allSnap.forEach(d => allLogs.push(d.data()));
-
-      Study.totalLogs = allLogs.length;
-      document.getElementById("totalLogs").textContent = String(Study.totalLogs);
-
-      const days = new Set(allLogs.map(x => x.dayKey).filter(Boolean));
-      document.getElementById("activeDays").textContent = String(days.size);
-
-      let streak = 0;
-      const cursor = new Date();
-      cursor.setHours(0,0,0,0);
-      while (true) {
-        const k = localDayKey(cursor);
-        if (days.has(k)) {
-          streak += 1;
-          cursor.setDate(cursor.getDate() - 1);
-        } else break;
-      }
-      document.getElementById("streakDays").textContent = String(streak);
-
       const recentQ = query(logsCol, orderBy("serverTime", "desc"), limit(10));
       const recentSnap = await getDocs(recentQ);
       const recent = [];
       recentSnap.forEach(d => recent.push(d.data()));
       renderHistory(recent);
-
-      await updateContextPanelFromSelf(allLogs);
     }
 
     function renderHistory(logs) {
@@ -633,41 +610,26 @@
       });
     }
 
-    // ============================================
-    // MANIPULATION CHECK & BEHAVIOURAL TRACKING
-    // ============================================
-    function trackBehavioralIndicator(type, value) {
-      const behaviorRef = doc(collection(db, "participants", Study.pid, "behavior"));
-      const behavioralData = {
-        timestamp: new Date().toISOString(),
-        type,
-        value,
-        dayKey: localDayKey()
-      };
-      setDoc(behaviorRef, behavioralData).catch(() => {});
-    }
-
+    // =========================
+    // 12) MANIPULATION CHECK (after 3 active days; once)
+    // =========================
     async function checkManipulationTiming() {
-      if (!Study.pid) return;
-
       try {
-        const logsCol = collection(db, "participants", Study.pid, "logs");
-        const allSnap = await getDocs(query(logsCol, orderBy("dayKey", "desc")));
-        const days = new Set();
-        allSnap.forEach(d => {
-          const v = d.data();
-          if (v?.dayKey) days.add(v.dayKey);
-        });
+        const pRef = doc(db, "participants", Study.pid);
+        const pSnap = await getDoc(pRef);
+        if (!pSnap.exists()) return;
+        const p = pSnap.data();
 
-        const activeDays = days.size;
+        const activeDays = Number(p.activeDays || 0);
+        if (activeDays < 3) return;
+
         const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
         const checkSnap = await getDoc(checkRef);
+        if (checkSnap.exists()) return;
 
-        if (activeDays >= 3 && !checkSnap.exists()) {
-          setTimeout(() => showManipulationCheckModal(), 800);
-        }
+        showManipulationCheckModal();
       } catch (e) {
-        console.log("Check timing error:", e);
+        // silent
       }
     }
 
@@ -690,66 +652,62 @@
           <p style="color: #5e7a6b; margin-bottom: 18px;">Please answer 3 short questions about your experience.</p>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">1. Which statement best describes what you think this study emphasizes?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">1. Which statement best describes what you think this study emphasises?</p>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="standards" style="margin-right:8px;">
-              <span>🏆 Meeting high personal standards in my actions</span>
+              <input type="radio" name="focus" value="comparison" style="margin-right:8px;">
+              <span>🏆 Performing better than other participants</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="responsibility" style="margin-right:8px;">
-              <span>🤝 Doing my part / responsibility to the community or environment</span>
+              <input type="radio" name="focus" value="duty" style="margin-right:8px;">
+              <span>🤝 Contributing to the collective good / community</span>
             </label>
             <label style="display:block; margin-bottom:8px;">
-              <input type="radio" name="focus" value="tracking" style="margin-right:8px;">
-              <span>📊 Just tracking my habits (no specific emphasis)</span>
+              <input type="radio" name="focus" value="personal" style="margin-right:8px;">
+              <span>📊 Tracking my personal habits</span>
             </label>
             <label style="display:block;">
               <input type="radio" name="focus" value="unsure" style="margin-right:8px;">
-              <span>❓ Not sure / didn't notice</span>
+              <span>❓ Not sure</span>
             </label>
           </div>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. While using the tracker, how often did you think about meeting high personal standards in your actions?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">2. How often did you think about how your actions compare to other participants?</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span>
-              <span style="font-size:12px;">Sometimes</span>
-              <span style="font-size:12px;">Constantly</span>
+              <span style="font-size:12px;">Never</span><span style="font-size:12px;">Constantly</span>
             </div>
-            <input type="range" id="standardsScale" min="1" max="7" value="4" style="width:100%;">
+            <input type="range" id="othersScale" min="1" max="7" value="4" style="width:100%;">
             <div style="text-align:center; margin-top:5px;">
-              <span id="standardsValue" style="font-weight:900; color:#004d40;">4</span>/7
+              <span id="othersValue" style="font-weight:950; color:#004d40;">4</span>/7
             </div>
           </div>
 
           <div style="margin-bottom: 18px;">
-            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">3. While using the tracker, how often did you feel a sense of responsibility to do your part for the community/environment?</p>
+            <p style="font-weight: 900; color: #004d40; margin-bottom: 10px;">3. How often did you feel a sense of responsibility to do your part for the community/environment?</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-              <span style="font-size:12px;">Never</span>
-              <span style="font-size:12px;">Sometimes</span>
-              <span style="font-size:12px;">Constantly</span>
+              <span style="font-size:12px;">Never</span><span style="font-size:12px;">Constantly</span>
             </div>
             <input type="range" id="communityScale" min="1" max="7" value="4" style="width:100%;">
             <div style="text-align:center; margin-top:5px;">
-              <span id="communityValue" style="font-weight:900; color:#004d40;">4</span>/7
+              <span id="communityValue" style="font-weight:950; color:#004d40;">4</span>/7
             </div>
           </div>
 
           <button id="submitMC" style="
             background:#004d40; color:white; border:none; padding:14px;
-            border-radius:12px; width:100%; font-size:16px; font-weight:900; cursor:pointer;
+            border-radius:12px; width:100%; font-size:16px; font-weight:950; cursor:pointer;
           ">Submit</button>
 
           <p style="text-align:center; margin-top:12px; font-size:12px; color:#999;">
-            Your responses help ensure the quality of our research.
+            Your responses help ensure research quality.
           </p>
         </div>
       `;
 
       document.body.appendChild(modal);
 
-      document.getElementById('standardsScale').addEventListener('input', (e) => {
-        document.getElementById('standardsValue').textContent = e.target.value;
+      document.getElementById('othersScale').addEventListener('input', (e) => {
+        document.getElementById('othersValue').textContent = e.target.value;
       });
       document.getElementById('communityScale').addEventListener('input', (e) => {
         document.getElementById('communityValue').textContent = e.target.value;
@@ -760,40 +718,27 @@
 
     async function submitManipulationCheck() {
       const focus = document.querySelector('input[name="focus"]:checked')?.value;
-      const standardsScale = Number(document.getElementById('standardsScale').value);
+      const othersScale = Number(document.getElementById('othersScale').value);
       const communityScale = Number(document.getElementById('communityScale').value);
 
-      if (!focus) {
-        alert('Please answer question 1');
-        return;
-      }
+      if (!focus) { alert('Please answer question 1'); return; }
 
       try {
         const checkRef = doc(db, "participants", Study.pid, "checks", "manipulation");
         await setDoc(checkRef, {
           focus,
-          standardsScale,
+          othersScale,
           communityScale,
           condition: Study.condition,
           completedAtISO: new Date().toISOString(),
           dayKey: localDayKey()
         });
 
-        trackBehavioralIndicator('manipulation_check_completed', 1);
-
         document.getElementById('manipulationModal').remove();
-        showNotification('✅ Thank you for your feedback!', 'ok', Study.condition);
-
+        showNotification("✅ Thank you for your feedback!");
       } catch (e) {
-        showNotification('Error saving responses.', 'err', Study.condition);
+        showNotification("Error saving responses.", "err");
       }
-    }
-
-    function trackLoggingBehavior(habit) {
-      const hour = new Date().getHours();
-      trackBehavioralIndicator('log_time_hour', hour);
-      trackBehavioralIndicator('category_logged', habit.category);
-      trackBehavioralIndicator('habit_id_logged', habit.id);
     }
 
     // =========================
